@@ -1,0 +1,93 @@
+# Environment Variables (NEVER COMMIT THESE)
+.env
+.env.local
+.env.production
+*.env
+!.env.example
+
+# Docker volumes and persistent data
+docker-data/
+sqlserver-data/
+logs/
+*.log
+
+# Build outputs
+bin/
+obj/
+dist/
+out/
+build/
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# .NET
+*.user
+*.suo
+*.cache
+*.sln.docstates
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Bb]uild/
+[Oo]bj/
+[Ll]og/
+.vs/
+.vscode/settings.json
+
+# Angular
+.angular/
+*.tgz
+*.tar.gz
+
+# IDE and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Test results
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
+
+# Package files
+*.nupkg
+*.snupkg
+*.tgz
+
+# Temporary files
+*.tmp
+*.temp
+*.pid
+*.seed
+*.log
+
+# SSL certificates (if any)
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# Local configuration overrides
+appsettings.Development.json
+appsettings.Local.json
+
+# Database files
+*.db
+*.sqlite
+*.mdf
+*.ldf
+
+# Backup files
+*.bak
+*.backup
