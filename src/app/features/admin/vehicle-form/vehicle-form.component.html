@@ -1,0 +1,110 @@
+<div class="vehicle-form-page">
+  <div class="page-header">
+    <div class="header-content">
+      <button class="btn btn-back" (click)="goBack()">
+        ← Volver a Vehículos
+      </button>
+      <h1>{{ pageTitle }}</h1>
+    </div>
+  </div>
+
+  <div class="page-content">
+    <div *ngIf="isLoading" class="loading-state">
+      <div class="spinner-large"></div>
+      <p>Cargando vehículo...</p>
+    </div>
+
+    <div *ngIf="!isLoading" class="form-container">
+      <form #vehicleForm="ngForm" (ngSubmit)="onSubmit(vehicleForm)" class="vehicle-form">
+        
+        <!-- Basic Information -->
+        <div class="form-section">
+          <h2>Información Básica</h2>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="model">Modelo *</label>
+              <input 
+                type="text" 
+                id="model" 
+                name="model"
+                [(ngModel)]="vehicleData.model"
+                required 
+                placeholder="Ej: Toyota Corolla"
+                #model="ngModel">
+              <div *ngIf="model.invalid && model.touched" class="error-message">
+                El modelo es requerido
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="type">Tipo de Vehículo *</label>
+              <select 
+                id="type" 
+                name="type"
+                [(ngModel)]="vehicleData.type"
+                required>
+                <option *ngFor="let type of vehicleTypes" [ngValue]="type.value">{{ type.label }}</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="year">Año *</label>
+              <input 
+                type="number" 
+                id="year" 
+                name="year"
+                [(ngModel)]="vehicleData.year"
+                required 
+                min="2000"
+                [max]="getCurrentYear() + 1"
+                placeholder="Ej: 2024"
+                #year="ngModel">
+              <div *ngIf="year.invalid && year.touched" class="error-message">
+                Ingresa un año válido
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="pricePerDay">Precio por Día (USD) *</label>
+              <input 
+                type="number" 
+                id="pricePerDay" 
+                name="pricePerDay"
+                [(ngModel)]="vehicleData.pricePerDay"
+                required 
+                min="0.01"
+                max="1000"
+                step="0.01"
+                placeholder="Ej: 50.00"
+                #pricePerDay="ngModel">
+              <div *ngIf="pricePerDay.invalid && pricePerDay.touched" class="error-message">
+                Ingresa un precio válido (entre $0.01 y $1000.00 USD)
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        <div *ngIf="errorMessage" class="alert alert-error">
+          {{ errorMessage }}
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" (click)="goBack()">
+            Cancelar
+          </button>
+          <button 
+            type="submit" 
+            class="btn btn-primary btn-large"
+            [disabled]="!vehicleForm.valid || isSubmitting">
+            <span *ngIf="isSubmitting" class="spinner"></span>
+            {{ submitButtonText }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

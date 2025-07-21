@@ -21,6 +21,18 @@ export class ReservationService {
     return this.apiService.getReservationByConfirmation(confirmationNumber);
   }
 
+  searchReservations(params: { 
+    startDate?: Date; 
+    endDate?: Date; 
+    status?: string; 
+    customerId?: number; 
+    vehicleId?: number;
+    pageNumber?: number;
+    pageSize?: number;
+  }): Observable<Reservation[]> {
+    return this.apiService.searchReservations(params);
+  }
+
   cancelReservation(id: number, reason: string): Observable<Reservation> {
     return this.apiService.cancelReservation(id, reason);
   }

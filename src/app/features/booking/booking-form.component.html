@@ -1,0 +1,184 @@
+<div class="booking-form" *ngIf="!showSuccessMessage; else successTemplate">
+  <div class="form-header">
+    <button class="btn btn-back" (click)="goBack()">
+      ← Volver
+    </button>
+    <h1>Completar reserva</h1>
+  </div>
+
+  <div class="booking-content">
+    <div class="booking-summary" *ngIf="vehicle$ | async as vehicle">
+      <h2>Resumen de la reserva</h2>
+      
+      <div class="vehicle-summary">
+        <div class="vehicle-image">
+          <div class="placeholder-image">
+            <span class="vehicle-icon">🚗</span>
+          </div>
+        </div>
+        
+        <div class="vehicle-info">
+          <h3>{{ vehicle.model }}</h3>
+          <p class="vehicle-details">{{ vehicle.type }} • {{ vehicle.year }}</p>
+          
+          <div class="booking-dates">
+            <div class="date-item">
+              <span class="label">Desde:</span>
+              <span class="value">{{ bookingData.startDate | date:'dd/MM/yyyy' }}</span>
+            </div>
+            <div class="date-item">
+              <span class="label">Hasta:</span>
+              <span class="value">{{ bookingData.endDate | date:'dd/MM/yyyy' }}</span>
+            </div>
+            <div class="date-item">
+              <span class="label">Duración:</span>
+              <span class="value">{{ totalDays }} día{{ totalDays !== 1 ? 's' : '' }}</span>
+            </div>
+          </div>
+          
+          <div class="price-summary">
+            <div class="price-breakdown">
+              <div class="price-item">
+                <span>{{ formatPrice(vehicle.pricePerDay) }} × {{ totalDays }} día{{ totalDays !== 1 ? 's' : '' }}</span>
+                <span>{{ formatPrice(vehicle.pricePerDay * totalDays) }}</span>
+              </div>
+              
+              <div class="price-item total">
+                <span>Total a pagar:</span>
+                <span class="total-amount">{{ formatPrice(bookingData.totalPrice) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="customer-form">
+      <h2>Información del cliente</h2>
+      
+      <form #bookingForm="ngForm" (ngSubmit)="onSubmit(bookingForm)">
+        <div class="form-section">
+          <h3>Datos personales</h3>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="name">Nombre completo *</label>
+              <input 
+                type="text" 
+                id="name" 
+                name="name" 
+                [(ngModel)]="customerData.name" 
+                required 
+                #name="ngModel">
+              <div *ngIf="name.invalid && name.touched" class="error-message">
+                El nombre completo es requerido
+              </div>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="documentNumber">Número de documento *</label>
+              <input 
+                type="text" 
+                id="documentNumber" 
+                name="documentNumber" 
+                [(ngModel)]="customerData.documentNumber" 
+                required 
+                pattern="[0-9]{6,12}"
+                #documentNumber="ngModel">
+              <div *ngIf="documentNumber.invalid && documentNumber.touched" class="error-message">
+                Ingresa un número de documento válido (6-12 dígitos)
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Información de contacto</h3>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="email">Correo electrónico *</label>
+              <input 
+                type="email" 
+                id="email" 
+                name="email" 
+                [(ngModel)]="customerData.email" 
+                required 
+                email
+                #email="ngModel">
+              <div *ngIf="email.invalid && email.touched" class="error-message">
+                Ingresa un correo electrónico válido
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="phone">Teléfono *</label>
+              <input 
+                type="tel" 
+                id="phone" 
+                name="phone" 
+                [(ngModel)]="customerData.phone" 
+                required 
+                placeholder="+57 300 123 4567"
+                #phone="ngModel">
+              <div *ngIf="phone.invalid && phone.touched" class="error-message">
+                Ingresa un número de teléfono válido
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        <div *ngIf="errorMessage" class="alert alert-error">
+          {{ errorMessage }}
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" (click)="goBack()">
+            Cancelar
+          </button>
+          <button 
+            type="submit" 
+            class="btn btn-primary btn-large"
+            [disabled]="!bookingForm.valid || isSubmitting">
+            <span *ngIf="isSubmitting" class="spinner"></span>
+            {{ isSubmitting ? 'Procesando...' : 'Confirmar reserva' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<ng-template #successTemplate>
+  <div class="success-page">
+    <div class="success-content">
+      <div class="success-icon">✅</div>
+      <h1>¡Reserva confirmada!</h1>
+      <p class="success-message">
+        Tu reserva ha sido creada exitosamente.
+      </p>
+      
+      <div class="confirmation-details">
+        <div class="confirmation-item">
+          <span class="label">Número de confirmación:</span>
+          <span class="value confirmation-number">{{ confirmationNumber }}</span>
+        </div>
+      </div>
+      
+      <p class="redirect-message">
+        Serás redirigido a la página de confirmación en unos segundos...
+      </p>
+      
+      <div class="success-actions">
+        <button 
+          class="btn btn-primary"
+          (click)="navigateToConfirmation()">
+          Ver detalles de la reserva
+        </button>
+      </div>
+    </div>
+  </div>
+</ng-template>

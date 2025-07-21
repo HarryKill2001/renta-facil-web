@@ -1,0 +1,188 @@
+<!-- Hero Section -->
+<section class="about-hero">
+  <div class="container">
+    <div class="hero-content">
+      <h1>Sobre RentaFácil</h1>
+      <p class="hero-subtitle">
+        Somos una empresa colombiana dedicada a hacer que el alquiler de vehículos 
+        sea una experiencia fácil, confiable y accesible para todos.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Mission Section -->
+<section class="mission">
+  <div class="container">
+    <div class="mission-content">
+      <div class="mission-text">
+        <h2>Nuestra Misión</h2>
+        <p>
+          En RentaFácil, nuestra misión es proporcionar soluciones de movilidad flexibles 
+          y confiables que permitan a nuestros clientes explorar Colombia con libertad y 
+          tranquilidad. Nos comprometemos a ofrecer vehículos de calidad, precios justos 
+          y un servicio al cliente excepcional.
+        </p>
+        
+        <h3>Nuestra Visión</h3>
+        <p>
+          Ser la empresa líder en alquiler de vehículos en Colombia, reconocida por nuestra 
+          innovación, calidad de servicio y compromiso con la satisfacción del cliente.
+        </p>
+      </div>
+      
+      <div class="mission-image">
+        <div class="placeholder-image">
+          <span class="mission-icon">🎯</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Stats Section -->
+<section class="stats">
+  <div class="container">
+    <div class="stats-grid">
+      <div *ngFor="let stat of stats" class="stat-item">
+        <div class="stat-value">{{ stat.value }}</div>
+        <div class="stat-label">{{ stat.label }}</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Values Section -->
+<section class="values">
+  <div class="container">
+    <div class="section-header">
+      <h2>Nuestros Valores</h2>
+      <p>Los principios que guían cada decisión y acción en RentaFácil</p>
+    </div>
+    
+    <div class="values-grid">
+      <div *ngFor="let value of values" class="value-card">
+        <div class="value-icon">{{ value.icon }}</div>
+        <h3 class="value-title">{{ value.title }}</h3>
+        <p class="value-description">{{ value.description }}</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Timeline Section -->
+<section class="timeline">
+  <div class="container">
+    <div class="section-header">
+      <h2>Nuestra Historia</h2>
+      <p>El crecimiento y evolución de RentaFácil a lo largo de los años</p>
+    </div>
+    
+    <div class="timeline-container">
+      <div *ngFor="let milestone of milestones; let i = index" 
+           class="timeline-item"
+           [class.timeline-left]="i % 2 === 0"
+           [class.timeline-right]="i % 2 === 1">
+        <div class="timeline-content">
+          <div class="timeline-year">{{ milestone.year }}</div>
+          <h3 class="timeline-title">{{ milestone.title }}</h3>
+          <p class="timeline-description">{{ milestone.description }}</p>
+        </div>
+        <div class="timeline-marker"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Team Section -->
+<section class="team">
+  <div class="container">
+    <div class="section-header">
+      <h2>Nuestro Equipo</h2>
+      <p>Conoce a las personas que hacen posible la experiencia RentaFácil</p>
+    </div>
+    
+    <div class="team-grid">
+      <div *ngFor="let member of team" class="team-card">
+        <div class="team-photo">
+          <div class="placeholder-photo">
+            <span class="photo-icon">👤</span>
+          </div>
+        </div>
+        
+        <div class="team-info">
+          <h3 class="team-name">{{ member.name }}</h3>
+          <p class="team-position">{{ member.position }}</p>
+          <p class="team-description">{{ member.description }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Why Choose Us Section -->
+<section class="why-choose">
+  <div class="container">
+    <div class="why-choose-content">
+      <div class="why-choose-text">
+        <h2>¿Por qué elegir RentaFácil?</h2>
+        
+        <div class="advantage">
+          <div class="advantage-icon">✅</div>
+          <div class="advantage-content">
+            <h4>Flota Moderna y Variada</h4>
+            <p>Contamos con más de 150 vehículos de diferentes categorías, desde compactos económicos hasta SUVs premium.</p>
+          </div>
+        </div>
+        
+        <div class="advantage">
+          <div class="advantage-icon">✅</div>
+          <div class="advantage-content">
+            <h4>Precios Transparentes</h4>
+            <p>Sin costos ocultos. El precio que ves es el precio que pagas, con seguros incluidos.</p>
+          </div>
+        </div>
+        
+        <div class="advantage">
+          <div class="advantage-icon">✅</div>
+          <div class="advantage-content">
+            <h4>Servicio 24/7</h4>
+            <p>Nuestro equipo de atención al cliente está disponible las 24 horas para asistirte.</p>
+          </div>
+        </div>
+        
+        <div class="advantage">
+          <div class="advantage-icon">✅</div>
+          <div class="advantage-content">
+            <h4>Proceso Digitalizado</h4>
+            <p>Reserva, modifica y gestiona tu alquiler completamente online desde cualquier dispositivo.</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="why-choose-image">
+        <div class="placeholder-image">
+          <span class="choose-icon">🏆</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta">
+  <div class="container">
+    <div class="cta-content">
+      <h2>¿Listo para comenzar tu viaje?</h2>
+      <p>Únete a miles de clientes satisfechos que confían en RentaFácil</p>
+      <div class="cta-actions">
+        <button class="btn btn-primary btn-large" routerLink="/vehicles">
+          Explorar Vehículos
+        </button>
+        <button class="btn btn-outline btn-large" routerLink="/contact">
+          Contáctanos
+        </button>
+      </div>
+    </div>
+  </div>
+</section>

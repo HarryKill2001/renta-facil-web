@@ -9,6 +9,10 @@ var builder = Host.CreateApplicationBuilder(args);
 builder.Services.AddDbContext<ReportingDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Register IDbContextFactory for thread-safe DbContext creation in background services
+builder.Services.AddDbContextFactory<ReportingDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 // Register services
 builder.Services.AddScoped<IReportService, ReportService>();
 

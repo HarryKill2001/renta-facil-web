@@ -17,14 +17,12 @@ public class ReservationRepository : BaseRepository<Reservation>, IReservationRe
     {
         return await _dbSet
             .Include(r => r.Customer)
-            .Include(r => r.Vehicle)
             .FirstOrDefaultAsync(r => r.ConfirmationNumber == confirmationNumber);
     }
 
     public async Task<IEnumerable<Reservation>> GetByCustomerIdAsync(int customerId)
     {
         return await _dbSet
-            .Include(r => r.Vehicle)
             .Where(r => r.CustomerId == customerId)
             .OrderByDescending(r => r.CreatedAt)
             .ToListAsync();
@@ -44,7 +42,6 @@ public class ReservationRepository : BaseRepository<Reservation>, IReservationRe
         var now = DateTime.UtcNow;
         return await _dbSet
             .Include(r => r.Customer)
-            .Include(r => r.Vehicle)
             .Where(r => r.Status == ReservationStatus.Confirmed && 
                        r.StartDate <= now && 
                        r.EndDate > now)
@@ -55,7 +52,6 @@ public class ReservationRepository : BaseRepository<Reservation>, IReservationRe
     {
         return await _dbSet
             .Include(r => r.Customer)
-            .Include(r => r.Vehicle)
             .Where(r => r.StartDate <= endDate && r.EndDate >= startDate)
             .OrderBy(r => r.StartDate)
             .ToListAsync();
@@ -65,7 +61,6 @@ public class ReservationRepository : BaseRepository<Reservation>, IReservationRe
     {
         return await _dbSet
             .Include(r => r.Customer)
-            .Include(r => r.Vehicle)
             .Where(r => r.Status == status)
             .OrderByDescending(r => r.CreatedAt)
             .ToListAsync();
@@ -75,7 +70,6 @@ public class ReservationRepository : BaseRepository<Reservation>, IReservationRe
     {
         return await _dbSet
             .Include(r => r.Customer)
-            .Include(r => r.Vehicle)
             .FirstOrDefaultAsync(r => r.Id == reservationId);
     }
 

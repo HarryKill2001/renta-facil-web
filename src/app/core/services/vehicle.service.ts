@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
-import { Vehicle, VehicleType, VehicleAvailabilityRequest } from '../../shared/models';
+import { Vehicle, VehicleType, VehicleAvailabilityRequest, CreateVehicle, UpdateVehicle } from '../../shared/models';
 
 @Injectable({
   providedIn: 'root'
@@ -21,7 +21,7 @@ export class VehicleService {
     return this.apiService.getAvailableVehicles(
       request.startDate,
       request.endDate,
-      request.type
+      request.type as any
     );
   }
 
@@ -29,8 +29,20 @@ export class VehicleService {
     return this.apiService.checkVehicleAvailability(vehicleId, startDate, endDate);
   }
 
+  createVehicle(vehicle: CreateVehicle): Observable<Vehicle> {
+    return this.apiService.createVehicle(vehicle);
+  }
+
+  updateVehicle(id: number, vehicle: Partial<CreateVehicle>): Observable<Vehicle> {
+    return this.apiService.updateVehicle(id, vehicle);
+  }
+
+  deleteVehicle(id: number): Observable<void> {
+    return this.apiService.deleteVehicle(id);
+  }
+
   getVehicleTypes(): VehicleType[] {
-    return Object.values(VehicleType);
+    return [VehicleType.SUV, VehicleType.Sedan, VehicleType.Compact];
   }
 
   calculateTotalPrice(vehicle: Vehicle, startDate: Date, endDate: Date): number {
@@ -44,5 +56,31 @@ export class VehicleService {
       style: 'currency',
       currency: 'COP'
     }).format(price);
+  }
+
+  filterVehiclesByType(vehicles: Vehicle[], type: VehicleType): Vehicle[] {
+    return vehicles.filter(vehicle => vehicle.type === type);
+  }
+
+  filterAvailableVehicles(vehicles: Vehicle[]): Vehicle[] {
+    return vehicles.filter(vehicle => vehicle.available);
+  }
+
+  filterVehiclesByPriceRange(vehicles: Vehicle[], minPrice: number, maxPrice: number): Vehicle[] {
+    return vehicles.filter(vehicle => 
+      vehicle.pricePerDay >= minPrice && vehicle.pricePerDay <= maxPrice
+    );
+  }
+
+  validateVehicleData(vehicle: any): boolean {
+    return !!(
+      vehicle.model && 
+      vehicle.model.trim() !== '' &&
+      vehicle.type !== undefined &&
+      vehicle.year >= 2000 && 
+      vehicle.year <= new Date().getFullYear() + 1 &&
+      vehicle.pricePerDay >= 0.01 &&
+      vehicle.pricePerDay <= 1000
+    );
   }
 }

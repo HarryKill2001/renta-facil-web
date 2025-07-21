@@ -1,0 +1,182 @@
+<div class="admin-dashboard">
+  <div class="dashboard-header">
+    <h1>Panel de Administración</h1>
+    <div class="header-actions">
+      <button class="btn btn-outline" (click)="refreshDashboard()">
+        🔄 Actualizar
+      </button>
+      <button class="btn btn-primary" routerLink="/admin/vehicles">
+        ➕ Nuevo Vehículo
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner-large"></div>
+    <p>Cargando datos del dashboard...</p>
+  </div>
+
+  <div *ngIf="errorMessage" class="error-state">
+    <div class="error-icon">❌</div>
+    <h3>Error al cargar el dashboard</h3>
+    <p>{{ errorMessage }}</p>
+    <button class="btn btn-primary" (click)="refreshDashboard()">
+      Reintentar
+    </button>
+  </div>
+
+  <div *ngIf="!isLoading && !errorMessage" class="dashboard-content">
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">🚗</div>
+        <div class="stat-content">
+          <div class="stat-number">{{ stats.totalVehicles }}</div>
+          <div class="stat-label">Total Vehículos</div>
+          <div class="stat-sublabel">{{ stats.availableVehicles }} disponibles</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">📋</div>
+        <div class="stat-content">
+          <div class="stat-number">{{ stats.totalReservations }}</div>
+          <div class="stat-label">Total Reservas</div>
+          <div class="stat-sublabel">{{ stats.activeReservations }} activas</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">💰</div>
+        <div class="stat-content">
+          <div class="stat-number">{{ formatPrice(stats.totalRevenue) }}</div>
+          <div class="stat-label">Ingresos Totales</div>
+          <div class="stat-sublabel">Histórico</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">📊</div>
+        <div class="stat-content">
+          <div class="stat-number">{{ formatPrice(stats.monthlyRevenue) }}</div>
+          <div class="stat-label">Ingresos del Mes</div>
+          <div class="stat-sublabel">{{ getCurrentMonth() }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+      <h2>Acciones Rápidas</h2>
+      <div class="actions-grid">
+        <button class="action-card" routerLink="/admin/vehicles">
+          <div class="action-icon">🚗</div>
+          <div class="action-title">Gestionar Vehículos</div>
+          <div class="action-description">Ver, agregar y editar vehículos</div>
+        </button>
+
+        <button class="action-card" routerLink="/admin/reservations">
+          <div class="action-icon">📋</div>
+          <div class="action-title">Ver Reservas</div>
+          <div class="action-description">Gestionar reservas y clientes</div>
+        </button>
+
+        <button class="action-card" routerLink="/admin/reports">
+          <div class="action-icon">📊</div>
+          <div class="action-title">Reportes</div>
+          <div class="action-description">Análisis y estadísticas</div>
+        </button>
+
+        <button class="action-card" routerLink="/admin/settings">
+          <div class="action-icon">⚙️</div>
+          <div class="action-title">Configuración</div>
+          <div class="action-description">Ajustes del sistema</div>
+        </button>
+      </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="recent-activity">
+      <div class="activity-section">
+        <h2>Vehículos Recientes</h2>
+        <div class="vehicles-list">
+          <div *ngIf="recentVehicles.length === 0" class="empty-state">
+            <p>No hay vehículos registrados</p>
+            <button class="btn btn-primary" routerLink="/admin/vehicles/new">
+              Agregar primer vehículo
+            </button>
+          </div>
+          
+          <div *ngFor="let vehicle of recentVehicles" class="vehicle-item">
+            <div class="vehicle-image">
+              <div class="placeholder-image">
+                <span class="vehicle-icon">🚗</span>
+              </div>
+            </div>
+            
+            <div class="vehicle-info">
+              <h4>{{ vehicle.model }}</h4>
+              <p class="vehicle-details">{{ vehicle.type }} • {{ vehicle.year }}</p>
+              <p class="vehicle-price">{{ formatPrice(vehicle.pricePerDay) }}/día</p>
+            </div>
+            
+            <div class="vehicle-status">
+              <span [class]="getVehicleStatusClass(vehicle.available)">
+                {{ getVehicleStatusText(vehicle.available) }}
+              </span>
+            </div>
+            
+            <div class="vehicle-actions">
+              <button class="btn btn-sm btn-outline" [routerLink]="['/admin/vehicles', vehicle.id]">
+                Ver
+              </button>
+              <button class="btn btn-sm btn-primary" [routerLink]="['/admin/vehicles', vehicle.id, 'edit']">
+                Editar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="activity-section">
+        <h2>Reservas Recientes</h2>
+        <div class="reservations-list">
+          <div *ngIf="recentReservations.length === 0" class="empty-state">
+            <p>No hay reservas recientes</p>
+            <button class="btn btn-outline" routerLink="/admin/reservations">
+              Ver todas las reservas
+            </button>
+          </div>
+          
+          <div *ngFor="let reservation of recentReservations" class="reservation-item">
+            <div class="reservation-info">
+              <h4>{{ reservation.confirmationNumber }}</h4>
+              <p class="reservation-details">
+                {{ reservation.customer?.name }}
+              </p>
+              <p class="reservation-dates">
+                {{ reservation.startDate | date:'dd/MM/yyyy' }} - {{ reservation.endDate | date:'dd/MM/yyyy' }}
+              </p>
+            </div>
+            
+            <div class="reservation-amount">
+              {{ formatPrice(reservation.totalPrice) }}
+            </div>
+            
+            <div class="reservation-status">
+              <span class="status-badge" [ngClass]="'status-' + reservation.status.toLowerCase()">
+                {{ reservation.status }}
+              </span>
+            </div>
+            
+            <div class="reservation-actions">
+              <button class="btn btn-sm btn-outline" [routerLink]="['/admin/reservations', reservation.id]">
+                Ver
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

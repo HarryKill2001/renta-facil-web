@@ -48,29 +48,8 @@ public class ReservationRepositoryTests : IDisposable
             }
         };
 
-        var vehicles = new List<Vehicle>
-        {
-            new Vehicle
-            {
-                Id = 1,
-                Type = VehicleType.SUV,
-                Model = "Toyota RAV4",
-                Year = 2023,
-                PricePerDay = 85.00m,
-                Available = true,
-                CreatedAt = DateTime.UtcNow.AddDays(-30)
-            },
-            new Vehicle
-            {
-                Id = 2,
-                Type = VehicleType.Sedan,
-                Model = "Honda Civic",
-                Year = 2022,
-                PricePerDay = 55.00m,
-                Available = true,
-                CreatedAt = DateTime.UtcNow.AddDays(-25)
-            }
-        };
+        // Note: Vehicles are now managed by VehicleService - no longer seeded in BookingService database
+        // Vehicle references in reservations use VehicleId only
 
         var reservations = new List<Reservation>
         {
@@ -125,7 +104,6 @@ public class ReservationRepositoryTests : IDisposable
         };
 
         _context.Customers.AddRange(customers);
-        _context.Vehicles.AddRange(vehicles);
         _context.Reservations.AddRange(reservations);
         _context.SaveChanges();
     }
@@ -240,8 +218,9 @@ public class ReservationRepositoryTests : IDisposable
         result.Id.Should().Be(1);
         result.Customer.Should().NotBeNull();
         result.Customer!.Name.Should().Be("Juan Pérez");
-        result.Vehicle.Should().NotBeNull();
-        result.Vehicle!.Model.Should().Be("Toyota RAV4");
+        // Note: Vehicle information is no longer included in reservations from BookingService
+        // Vehicle details must be fetched separately from VehicleService using VehicleId
+        result.VehicleId.Should().Be(1);
     }
 
     [Fact]
@@ -271,8 +250,9 @@ public class ReservationRepositoryTests : IDisposable
         var reservationsList = result.ToList();
         reservationsList[0].CreatedAt.Should().BeAfter(reservationsList[1].CreatedAt);
         
-        // Should include vehicle details
-        reservationsList.All(r => r.Vehicle != null).Should().BeTrue();
+        // Note: Vehicle details are no longer included in reservations from BookingService
+        // Vehicle information must be fetched separately from VehicleService using VehicleId
+        reservationsList.All(r => r.VehicleId > 0).Should().BeTrue();
     }
 
     [Fact]
@@ -366,8 +346,8 @@ public class ReservationRepositoryTests : IDisposable
             reservationsList[i].StartDate.Should().BeOnOrBefore(reservationsList[i + 1].StartDate);
         }
         
-        // Should include customer and vehicle details
-        reservationsList.All(r => r.Customer != null && r.Vehicle != null).Should().BeTrue();
+        // Should include customer details (vehicle details must be fetched from VehicleService)
+        reservationsList.All(r => r.Customer != null && r.VehicleId > 0).Should().BeTrue();
     }
 
     [Fact]
@@ -385,7 +365,8 @@ public class ReservationRepositoryTests : IDisposable
         // Should be ordered by CreatedAt descending
         var reservation = result.First();
         reservation.Customer.Should().NotBeNull();
-        reservation.Vehicle.Should().NotBeNull();
+        // Note: Vehicle details are no longer included in reservations from BookingService
+        reservation.VehicleId.Should().BeGreaterThan(0);
     }
 
     [Fact]
@@ -400,8 +381,9 @@ public class ReservationRepositoryTests : IDisposable
         result.ConfirmationNumber.Should().Be("RF-20241201-001");
         result.Customer.Should().NotBeNull();
         result.Customer!.Name.Should().Be("Juan Pérez");
-        result.Vehicle.Should().NotBeNull();
-        result.Vehicle!.Model.Should().Be("Toyota RAV4");
+        // Note: Vehicle information is no longer included in reservations from BookingService
+        // Vehicle details must be fetched separately from VehicleService using VehicleId
+        result.VehicleId.Should().Be(1);
     }
 
     [Fact]

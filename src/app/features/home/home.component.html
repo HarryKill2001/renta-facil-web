@@ -1,0 +1,216 @@
+<!-- Hero Section -->
+<section class="hero">
+  <div class="hero-background">
+    <div class="hero-overlay"></div>
+  </div>
+  
+  <div class="hero-content">
+    <div class="container">
+      <div class="hero-text">
+        <h1 class="hero-title">
+          Alquila el vehículo perfecto para tu viaje
+        </h1>
+        <p class="hero-subtitle">
+          Encuentra la mejor opción entre nuestra amplia flota de vehículos. 
+          Precios competitivos, proceso fácil y servicio confiable.
+        </p>
+      </div>
+      
+      <div class="search-widget">
+        <h3 class="search-title">Busca tu vehículo ideal</h3>
+        <form class="search-form" (ngSubmit)="onQuickSearch()">
+          <div class="search-row">
+            <div class="search-group">
+              <label for="startDate">Fecha de inicio</label>
+              <input 
+                type="date" 
+                id="startDate" 
+                [(ngModel)]="searchData.startDate"
+                name="startDate"
+                required>
+            </div>
+            
+            <div class="search-group">
+              <label for="endDate">Fecha de fin</label>
+              <input 
+                type="date" 
+                id="endDate" 
+                [(ngModel)]="searchData.endDate"
+                name="endDate"
+                required>
+            </div>
+            
+            <div class="search-group">
+              <label for="vehicleType">Tipo de vehículo</label>
+              <select id="vehicleType" [(ngModel)]="searchData.vehicleType" name="vehicleType">
+                <option value="">Todos los tipos</option>
+                <option value="compact">Compacto</option>
+                <option value="sedan">Sedán</option>
+                <option value="suv">SUV</option>
+              </select>
+            </div>
+            
+            <div class="search-group search-button-group">
+              <button type="submit" class="btn btn-primary btn-large">
+                🔍 Buscar Vehículos
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features Section -->
+<section class="features" id="features">
+  <div class="container">
+    <div class="section-header">
+      <h2>¿Por qué elegir RentaFácil?</h2>
+      <p>Ofrecemos las mejores condiciones para tu experiencia de alquiler</p>
+    </div>
+    
+    <div class="features-grid">
+      <div *ngFor="let feature of features" class="feature-card">
+        <div class="feature-icon">{{ feature.icon }}</div>
+        <h3 class="feature-title">{{ feature.title }}</h3>
+        <p class="feature-description">{{ feature.description }}</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Featured Vehicles Section -->
+<section class="featured-vehicles" id="vehicles">
+  <div class="container">
+    <div class="section-header">
+      <h2>Vehículos Destacados</h2>
+      <p>Conoce algunos de nuestros vehículos más populares</p>
+    </div>
+    
+    <div class="vehicles-grid">
+      <div *ngFor="let vehicle of featuredVehicles" class="vehicle-card">
+        <div class="vehicle-image">
+          <div class="placeholder-image">
+            <span class="vehicle-icon">🚗</span>
+          </div>
+          <div class="vehicle-badge">{{ vehicle.type }}</div>
+        </div>
+        
+        <div class="vehicle-info">
+          <h3 class="vehicle-name">{{ vehicle.model }}</h3>
+          <p class="vehicle-year">Año {{ vehicle.year }}</p>
+          
+          <div class="vehicle-price">
+            <span class="price">{{ formatPrice(vehicle.pricePerDay) }}</span>
+            <span class="period">/día</span>
+          </div>
+          
+          <div class="vehicle-features">
+            <span class="feature">✓ Aire acondicionado</span>
+            <span class="feature">✓ 5 pasajeros</span>
+            <span class="feature">✓ Seguro incluido</span>
+          </div>
+          
+          <div class="vehicle-actions">
+            <button class="btn btn-outline" [routerLink]="['/vehicles', vehicle.id]">
+              Ver Detalles
+            </button>
+            <button class="btn btn-primary" [routerLink]="['/vehicles', vehicle.id]">
+              Reservar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="section-footer">
+      <button class="btn btn-outline btn-large" routerLink="/vehicles">
+        Ver Todos los Vehículos
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="how-it-works">
+  <div class="container">
+    <div class="section-header">
+      <h2>¿Cómo funciona?</h2>
+      <p>Reserva tu vehículo en 3 simples pasos</p>
+    </div>
+    
+    <div class="steps-grid">
+      <div class="step">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h3>Busca y Selecciona</h3>
+          <p>Encuentra el vehículo perfecto para tus necesidades usando nuestros filtros de búsqueda.</p>
+        </div>
+      </div>
+      
+      <div class="step">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h3>Completa tu Reserva</h3>
+          <p>Ingresa tus datos y confirma las fechas. El proceso es rápido y seguro.</p>
+        </div>
+      </div>
+      
+      <div class="step">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h3>Recoge tu Vehículo</h3>
+          <p>Presenta tu confirmación y documentos. ¡Listo para disfrutar tu viaje!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="testimonials" id="testimonials">
+  <div class="container">
+    <div class="section-header">
+      <h2>Lo que dicen nuestros clientes</h2>
+      <p>Miles de clientes satisfechos avalan nuestro servicio</p>
+    </div>
+    
+    <div class="testimonials-grid">
+      <div *ngFor="let testimonial of testimonials" class="testimonial-card">
+        <div class="testimonial-content">
+          <div class="testimonial-rating">
+            <span *ngFor="let star of generateStars(testimonial.rating)" class="star">{{ star }}</span>
+          </div>
+          <p class="testimonial-comment">"{{ testimonial.comment }}"</p>
+        </div>
+        
+        <div class="testimonial-author">
+          <div class="author-avatar">{{ testimonial.name.charAt(0) }}</div>
+          <div class="author-info">
+            <h4 class="author-name">{{ testimonial.name }}</h4>
+            <p class="author-location">{{ testimonial.location }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta">
+  <div class="container">
+    <div class="cta-content">
+      <h2>¿Listo para tu próximo viaje?</h2>
+      <p>Encuentra el vehículo perfecto y comienza tu aventura hoy mismo</p>
+      <div class="cta-actions">
+        <button class="btn btn-primary btn-large" routerLink="/vehicles">
+          Explorar Vehículos
+        </button>
+        <button class="btn btn-outline btn-large" routerLink="/contact">
+          Contactar Soporte
+        </button>
+      </div>
+    </div>
+  </div>
+</section>

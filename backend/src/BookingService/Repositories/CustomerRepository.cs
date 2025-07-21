@@ -26,7 +26,6 @@ public class CustomerRepository : BaseRepository<Customer>, ICustomerRepository
     {
         return await _dbSet
             .Include(c => c.Reservations)
-                .ThenInclude(r => r.Vehicle)
             .FirstOrDefaultAsync(c => c.Id == customerId);
     }
 

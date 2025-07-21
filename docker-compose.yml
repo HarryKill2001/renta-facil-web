@@ -1,0 +1,105 @@
+# Docker Compose configuration for RentaFácil Application
+# This file defines all the services needed to run the complete application
+
+version: '3.8'
+
+services:
+  # SQL Server Database
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: rentafacil-sql
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourStrong!Passw0rd
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    networks:
+      - rentafacil-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P YourStrong!Passw0rd -Q 'SELECT 1' || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  # Vehicle Service
+  vehicle-service:
+    build:
+      context: ./backend/src/VehicleService
+      dockerfile: Dockerfile
+    container_name: rentafacil-vehicle-service
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5002
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=RentaFacil_VehicleService;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=true;
+    ports:
+      - "5002:5002"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    networks:
+      - rentafacil-network
+    restart: unless-stopped
+
+  # Booking Service
+  booking-service:
+    build:
+      context: ./backend/src/BookingService
+      dockerfile: Dockerfile
+    container_name: rentafacil-booking-service
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5257
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=RentaFacil_BookingService;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=true;
+      - Services__VehicleService__BaseUrl=http://vehicle-service:5002
+    ports:
+      - "5257:5257"
+    depends_on:
+      - sqlserver
+      - vehicle-service
+    networks:
+      - rentafacil-network
+    restart: unless-stopped
+
+  # Worker Service
+  worker-service:
+    build:
+      context: ./backend/src/WorkerService
+      dockerfile: Dockerfile
+    container_name: rentafacil-worker-service
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=RentaFacil_ReportingService;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=true;
+    depends_on:
+      - sqlserver
+    networks:
+      - rentafacil-network
+    restart: unless-stopped
+
+  # Frontend (Angular)
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rentafacil-frontend
+    environment:
+      - NODE_ENV=development
+    ports:
+      - "4200:4200"
+    depends_on:
+      - vehicle-service
+      - booking-service
+    networks:
+      - rentafacil-network
+    restart: unless-stopped
+
+volumes:
+  sqlserver_data:
+    driver: local
+
+networks:
+  rentafacil-network:
+    driver: bridge

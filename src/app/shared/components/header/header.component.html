@@ -1,0 +1,135 @@
+<header class="app-header">
+  <div class="header-container">
+    <div class="header-content">
+      <div class="logo-section">
+        <a routerLink="/" class="logo" (click)="closeMenu()">
+          <span class="logo-icon">🚗</span>
+          <span class="logo-text">RentaFácil</span>
+        </a>
+      </div>
+
+      <nav class="nav-desktop" [class.nav-open]="isMenuOpen">
+        <ul class="nav-list">
+          <li class="nav-item">
+            <a routerLink="/vehicles" routerLinkActive="active" class="nav-link" (click)="closeMenu()">
+              Vehículos
+            </a>
+          </li>
+          <li class="nav-item">
+            <a routerLink="/reservation-search" routerLinkActive="active" class="nav-link" (click)="closeMenu()">
+              Mis Reservas
+            </a>
+          </li>
+          <li class="nav-item">
+            <a routerLink="/about" routerLinkActive="active" class="nav-link" (click)="closeMenu()">
+              Nosotros
+            </a>
+          </li>
+          <li class="nav-item">
+            <a routerLink="/contact" routerLinkActive="active" class="nav-link" (click)="closeMenu()">
+              Contacto
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="header-actions">
+        <div class="search-section">
+          <a routerLink="/reservation-search" class="btn btn-outline btn-sm">
+            🔍 Buscar reserva
+          </a>
+        </div>
+        
+        <div class="auth-section">
+          <div *ngIf="!isAuthenticated; else userMenu" class="guest-menu">
+            <button class="btn btn-outline btn-sm" (click)="login()">
+              Iniciar sesión
+            </button>
+            <a routerLink="/register" class="btn btn-primary btn-sm">
+              Registrarse
+            </a>
+          </div>
+          
+          <ng-template #userMenu>
+            <div class="user-menu">
+              <span class="user-greeting">Hola, {{ currentUser?.name }}</span>
+              <button *ngIf="isAdmin" class="btn btn-outline btn-sm" (click)="goToAdmin()">
+                🛠️ Admin
+              </button>
+              <button class="btn btn-outline btn-sm" (click)="logout()">
+                Cerrar sesión
+              </button>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+
+      <button 
+        class="mobile-menu-toggle"
+        (click)="toggleMenu()"
+        [class.active]="isMenuOpen"
+        aria-label="Toggle menu">
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+      </button>
+    </div>
+
+    <nav class="nav-mobile" [class.nav-open]="isMenuOpen">
+      <ul class="nav-list-mobile">
+        <li class="nav-item-mobile">
+          <a routerLink="/vehicles" routerLinkActive="active" class="nav-link-mobile" (click)="closeMenu()">
+            🚗 Vehículos
+          </a>
+        </li>
+        <li class="nav-item-mobile">
+          <a routerLink="/reservation-search" routerLinkActive="active" class="nav-link-mobile" (click)="closeMenu()">
+            📋 Mis Reservas
+          </a>
+        </li>
+        <li class="nav-item-mobile">
+          <a routerLink="/about" routerLinkActive="active" class="nav-link-mobile" (click)="closeMenu()">
+            ℹ️ Nosotros
+          </a>
+        </li>
+        <li class="nav-item-mobile">
+          <a routerLink="/contact" routerLinkActive="active" class="nav-link-mobile" (click)="closeMenu()">
+            📞 Contacto
+          </a>
+        </li>
+        
+        <li class="nav-divider"></li>
+        
+        <li class="nav-item-mobile">
+          <a routerLink="/reservation-search" class="nav-link-mobile" (click)="closeMenu()">
+            🔍 Buscar reserva
+          </a>
+        </li>
+        <li class="nav-item-mobile" *ngIf="!isAuthenticated">
+          <a class="nav-link-mobile" (click)="login()">
+            👤 Iniciar sesión
+          </a>
+        </li>
+        <li class="nav-item-mobile" *ngIf="!isAuthenticated">
+          <a routerLink="/register" class="nav-link-mobile primary" (click)="closeMenu()">
+            ➕ Registrarse
+          </a>
+        </li>
+        
+        <li class="nav-item-mobile" *ngIf="isAuthenticated">
+          <span class="nav-text-mobile">👋 {{ currentUser?.name }}</span>
+        </li>
+        <li class="nav-item-mobile" *ngIf="isAdmin">
+          <a class="nav-link-mobile" (click)="goToAdmin()">
+            🛠️ Panel de Admin
+          </a>
+        </li>
+        <li class="nav-item-mobile" *ngIf="isAuthenticated">
+          <a class="nav-link-mobile" (click)="logout()">
+            🚪 Cerrar sesión
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</header>

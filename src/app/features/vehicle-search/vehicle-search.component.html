@@ -1,0 +1,117 @@
+<div class="vehicle-search">
+  <div class="search-form">
+    <h2>Encuentra tu vehículo ideal</h2>
+    
+    <form (ngSubmit)="searchAvailableVehicles()" #searchForm="ngForm">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="startDate">Fecha de inicio</label>
+          <input 
+            type="date" 
+            id="startDate" 
+            name="startDate" 
+            [(ngModel)]="availabilityRequest.startDate"
+            [min]="minStartDate"
+            required>
+        </div>
+        
+        <div class="form-group">
+          <label for="endDate">Fecha de fin</label>
+          <input 
+            type="date" 
+            id="endDate" 
+            name="endDate" 
+            [(ngModel)]="availabilityRequest.endDate"
+            [min]="minEndDate"
+            required>
+        </div>
+        
+        <div class="form-group">
+          <label for="vehicleType">Tipo de vehículo</label>
+          <select id="vehicleType" name="vehicleType" [(ngModel)]="availabilityRequest.type">
+            <option [value]="undefined">Todos los tipos</option>
+            <option *ngFor="let type of vehicleTypes" [value]="type">
+              {{ getVehicleTypeDisplay(type) }}
+            </option>
+          </select>
+        </div>
+        
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" [disabled]="!searchForm.valid || isSearching">
+            <span *ngIf="isSearching" class="spinner"></span>
+            {{ isSearching ? 'Buscando...' : 'Buscar' }}
+          </button>
+          <button type="button" class="btn btn-secondary" (click)="resetSearch()">
+            Limpiar
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div class="search-results">
+    <div *ngIf="hasSearched" class="results-header">
+      <h3>Vehículos disponibles</h3>
+    </div>
+    
+    <!-- Loading skeletons -->
+    <div *ngIf="isLoading" class="vehicles-grid">
+      <app-vehicle-card-skeleton *ngFor="let item of [1,2,3,4,5,6]"></app-vehicle-card-skeleton>
+    </div>
+    
+    <!-- Actual content -->
+    <div *ngIf="!isLoading" class="vehicles-grid">
+      <div *ngIf="vehicles$ | async as vehicles">
+        <div *ngIf="vehicles.length === 0" class="no-results">
+          <div class="no-results-icon">🔍</div>
+          <h3>No se encontraron vehículos</h3>
+          <p>No hay vehículos disponibles para las fechas seleccionadas. Intenta con otras fechas.</p>
+        </div>
+        
+        <div *ngFor="let vehicle of vehicles" class="vehicle-card">
+          <div class="vehicle-image">
+            <div class="placeholder-image">
+              <span class="vehicle-icon">🚗</span>
+            </div>
+          </div>
+          
+          <div class="vehicle-info">
+            <h4>{{ vehicle.model }}</h4>
+            <p class="vehicle-type">{{ getVehicleTypeDisplay(vehicle.type) }}</p>
+            <p class="vehicle-year">Año {{ vehicle.year }}</p>
+            
+            <div class="pricing">
+              <div class="price-per-day">
+                <span class="label">Por día:</span>
+                <span class="price">{{ formatPrice(vehicle.pricePerDay) }}</span>
+              </div>
+              
+              <div *ngIf="hasSearched" class="total-price">
+                <span class="label">Total:</span>
+                <span class="price total">{{ formatPrice(calculateTotalPrice(vehicle)) }}</span>
+              </div>
+            </div>
+            
+            <div class="vehicle-status">
+              <span class="status" [class.available]="vehicle.available" [class.unavailable]="!vehicle.available">
+                {{ vehicle.available ? 'Disponible' : 'No disponible' }}
+              </span>
+            </div>
+            
+            <div class="vehicle-actions">
+              <button 
+                class="btn btn-primary" 
+                [disabled]="!vehicle.available"
+                (click)="selectVehicle(vehicle)">
+                {{ vehicle.available ? 'Reservar' : 'No disponible' }}
+              </button>
+              <button class="btn btn-outline" (click)="viewDetails(vehicle)">
+                Ver detalles
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

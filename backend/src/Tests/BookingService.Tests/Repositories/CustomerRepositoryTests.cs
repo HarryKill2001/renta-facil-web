@@ -60,19 +60,8 @@ public class CustomerRepositoryTests : IDisposable
             }
         };
 
-        var vehicles = new List<Vehicle>
-        {
-            new Vehicle
-            {
-                Id = 1,
-                Type = VehicleType.SUV,
-                Model = "Toyota RAV4",
-                Year = 2023,
-                PricePerDay = 85.00m,
-                Available = true,
-                CreatedAt = DateTime.UtcNow.AddDays(-30)
-            }
-        };
+        // Note: Vehicles are now managed by VehicleService - no longer seeded in BookingService database
+        // Vehicle references in reservations use VehicleId only
 
         var reservations = new List<Reservation>
         {
@@ -80,7 +69,7 @@ public class CustomerRepositoryTests : IDisposable
             {
                 Id = 1,
                 CustomerId = 1,
-                VehicleId = 1,
+                VehicleId = 1, // Reference to vehicle in VehicleService
                 StartDate = DateTime.Today.AddDays(5),
                 EndDate = DateTime.Today.AddDays(10),
                 TotalPrice = 425.00m,
@@ -92,7 +81,7 @@ public class CustomerRepositoryTests : IDisposable
             {
                 Id = 2,
                 CustomerId = 1,
-                VehicleId = 1,
+                VehicleId = 1, // Reference to vehicle in VehicleService
                 StartDate = DateTime.Today.AddDays(15),
                 EndDate = DateTime.Today.AddDays(20),
                 TotalPrice = 425.00m,
@@ -103,7 +92,6 @@ public class CustomerRepositoryTests : IDisposable
         };
 
         _context.Customers.AddRange(customers);
-        _context.Vehicles.AddRange(vehicles);
         _context.Reservations.AddRange(reservations);
         _context.SaveChanges();
     }
@@ -287,10 +275,10 @@ public class CustomerRepositoryTests : IDisposable
         result.Reservations.Should().Contain(r => r.ConfirmationNumber == "RF-20241201-001");
         result.Reservations.Should().Contain(r => r.ConfirmationNumber == "RF-20241201-002");
         
-        // Check that vehicle information is included
+        // Note: Vehicle information is no longer included in reservations from BookingService
+        // Vehicle details must be fetched separately from VehicleService using VehicleId
         var reservation = result.Reservations.First();
-        reservation.Vehicle.Should().NotBeNull();
-        reservation.Vehicle!.Model.Should().Be("Toyota RAV4");
+        reservation.VehicleId.Should().Be(1);
     }
 
     [Fact]

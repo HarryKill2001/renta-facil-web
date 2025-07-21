@@ -7,12 +7,12 @@ namespace WorkerService.Services;
 
 public class ReportService : IReportService
 {
-    private readonly ReportingDbContext _context;
+    private readonly IDbContextFactory<ReportingDbContext> _contextFactory;
     private readonly ILogger<ReportService> _logger;
 
-    public ReportService(ReportingDbContext context, ILogger<ReportService> logger)
+    public ReportService(IDbContextFactory<ReportingDbContext> contextFactory, ILogger<ReportService> logger)
     {
-        _context = context;
+        _contextFactory = contextFactory;
         _logger = logger;
     }
 
@@ -20,14 +20,16 @@ public class ReportService : IReportService
     {
         _logger.LogInformation("Generating daily reservation summary for {Date}", date.ToString("yyyy-MM-dd"));
 
+        using var context = await _contextFactory.CreateDbContextAsync();
+        
         var startOfDay = date.Date;
         var endOfDay = startOfDay.AddDays(1);
 
-        var reservations = await _context.Reservations
+        var reservations = await context.Reservations
             .Where(r => r.CreatedAt >= startOfDay && r.CreatedAt < endOfDay)
             .ToListAsync();
 
-        var newCustomers = await _context.Customers
+        var newCustomers = await context.Customers
             .Where(c => c.CreatedAt >= startOfDay && c.CreatedAt < endOfDay)
             .CountAsync();
 
@@ -56,15 +58,17 @@ public class ReportService : IReportService
     {
         _logger.LogInformation("Generating vehicle utilization report for {Date}", date.ToString("yyyy-MM-dd"));
 
+        using var context = await _contextFactory.CreateDbContextAsync();
+        
         var startOfDay = date.Date;
         var endOfDay = startOfDay.AddDays(1);
 
-        var vehicles = await _context.Vehicles.ToListAsync();
+        var vehicles = await context.Vehicles.ToListAsync();
         var reports = new List<VehicleUtilizationReport>();
 
         foreach (var vehicle in vehicles)
         {
-            var reservations = await _context.Reservations
+            var reservations = await context.Reservations
                 .Where(r => r.VehicleId == vehicle.Id && 
                            r.Status == ReservationStatus.Confirmed &&
                            ((r.StartDate <= startOfDay && r.EndDate > startOfDay) ||
@@ -104,10 +108,12 @@ public class ReportService : IReportService
     {
         _logger.LogInformation("Generating monthly revenue summary for {Year}-{Month:D2}", year, month);
 
+        using var context = await _contextFactory.CreateDbContextAsync();
+        
         var startOfMonth = new DateTime(year, month, 1);
         var endOfMonth = startOfMonth.AddMonths(1);
 
-        var reservations = await _context.Reservations
+        var reservations = await context.Reservations
             .Include(r => r.Vehicle)
             .Where(r => r.Status == ReservationStatus.Confirmed &&
                        r.CreatedAt >= startOfMonth && r.CreatedAt < endOfMonth)
@@ -145,25 +151,27 @@ public class ReportService : IReportService
     {
         _logger.LogInformation("Generating customer metrics for {Date}", date.ToString("yyyy-MM-dd"));
 
+        using var context = await _contextFactory.CreateDbContextAsync();
+        
         var startOfDay = date.Date;
         var endOfDay = startOfDay.AddDays(1);
         var thirtyDaysAgo = startOfDay.AddDays(-30);
 
-        var totalCustomers = await _context.Customers.CountAsync();
+        var totalCustomers = await context.Customers.CountAsync();
         
-        var newCustomersToday = await _context.Customers
+        var newCustomersToday = await context.Customers
             .Where(c => c.CreatedAt >= startOfDay && c.CreatedAt < endOfDay)
             .CountAsync();
 
-        var activeCustomers = await _context.Customers
+        var activeCustomers = await context.Customers
             .Where(c => c.Reservations.Any(r => r.CreatedAt >= thirtyDaysAgo))
             .CountAsync();
 
-        var returningCustomers = await _context.Customers
+        var returningCustomers = await context.Customers
             .Where(c => c.Reservations.Count > 1)
             .CountAsync();
 
-        var totalReservations = await _context.Reservations.CountAsync();
+        var totalReservations = await context.Reservations.CountAsync();
         var averageReservationsPerCustomer = totalCustomers > 0 
             ? (decimal)totalReservations / totalCustomers 
             : 0;

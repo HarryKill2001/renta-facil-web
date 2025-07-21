@@ -1,0 +1,102 @@
+<div class="login-page">
+  <div class="login-container">
+    <div class="login-header">
+      <div class="logo">
+        <span class="logo-icon">🚗</span>
+        <span class="logo-text">RentaFácil</span>
+      </div>
+      <h1>Iniciar Sesión</h1>
+      <p class="login-subtitle">Accede a tu cuenta para continuar</p>
+    </div>
+
+    <form #loginForm="ngForm" (ngSubmit)="onSubmit(loginForm)" class="login-form">
+      <div class="form-group">
+        <label for="email">Correo electrónico</label>
+        <input 
+          type="email" 
+          id="email" 
+          name="email"
+          [(ngModel)]="loginData.email"
+          required 
+          email
+          placeholder="tu@email.com"
+          #email="ngModel">
+        <div *ngIf="email.invalid && email.touched" class="error-message">
+          Ingresa un correo electrónico válido
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Contraseña</label>
+        <input 
+          type="password" 
+          id="password" 
+          name="password"
+          [(ngModel)]="loginData.password"
+          required 
+          placeholder="••••••••"
+          #password="ngModel">
+        <div *ngIf="password.invalid && password.touched" class="error-message">
+          La contraseña es requerida
+        </div>
+      </div>
+
+      <div *ngIf="errorMessage" class="alert alert-error">
+        {{ errorMessage }}
+      </div>
+
+      <div class="form-actions">
+        <button 
+          type="submit" 
+          class="btn btn-primary btn-large"
+          [disabled]="!loginForm.valid || isLoading">
+          <span *ngIf="isLoading" class="spinner"></span>
+          {{ isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión' }}
+        </button>
+      </div>
+    </form>
+
+    <!-- Demo Credentials Section -->
+    <div *ngIf="showDemoCredentials" class="demo-section">
+      <h3>Credenciales de demostración</h3>
+      <p class="demo-description">
+        Usa estas credenciales para probar la aplicación:
+      </p>
+      
+      <div class="demo-credentials">
+        <div class="credential-card">
+          <h4>👤 Usuario Regular</h4>
+          <p><strong>Email:</strong> user&#64;rentafacil.com</p>
+          <p><strong>Contraseña:</strong> user123</p>
+          <button 
+            type="button" 
+            class="btn btn-outline btn-small"
+            (click)="useDemoCredentials('user')">
+            Usar estas credenciales
+          </button>
+        </div>
+
+        <div class="credential-card admin">
+          <h4>👨‍💼 Administrador</h4>
+          <p><strong>Email:</strong> admin&#64;rentafacil.com</p>
+          <p><strong>Contraseña:</strong> admin123</p>
+          <button 
+            type="button" 
+            class="btn btn-outline btn-small"
+            (click)="useDemoCredentials('admin')">
+            Usar estas credenciales
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="login-footer">
+      <button 
+        type="button" 
+        class="btn btn-text"
+        (click)="goBack()">
+        ← Volver al inicio
+      </button>
+    </div>
+  </div>
+</div>

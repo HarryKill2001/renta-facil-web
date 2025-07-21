@@ -1,0 +1,171 @@
+<div class="confirmation-page" *ngIf="!isLoading && !errorMessage; else loadingOrErrorTemplate">
+  <div class="confirmation-content" *ngIf="reservation$ | async as reservation">
+    <div class="confirmation-header">
+      <div class="status-icon success">✅</div>
+      <h1>Reserva confirmada</h1>
+      <p class="confirmation-subtitle">Tu reserva ha sido procesada exitosamente</p>
+    </div>
+
+    <div class="confirmation-details">
+      <div class="confirmation-number-section">
+        <h2>Número de confirmación</h2>
+        <div class="confirmation-number">{{ reservation.confirmationNumber }}</div>
+        <p class="confirmation-note">Guarda este número para futuras consultas</p>
+      </div>
+
+      <div class="reservation-info">
+        <div class="info-section">
+          <h3>Información de la reserva</h3>
+          
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="label">Estado:</span>
+              <span class="value">
+                <span class="status-badge" [ngClass]="getStatusClass(reservation.status)">
+                  {{ getStatusDisplayName(reservation.status) }}
+                </span>
+              </span>
+            </div>
+            
+            <div class="info-item">
+              <span class="label">Fecha de inicio:</span>
+              <span class="value">{{ reservation.startDate | date:'dd/MM/yyyy' }}</span>
+            </div>
+            
+            <div class="info-item">
+              <span class="label">Fecha de fin:</span>
+              <span class="value">{{ reservation.endDate | date:'dd/MM/yyyy' }}</span>
+            </div>
+            
+            <div class="info-item">
+              <span class="label">Total:</span>
+              <span class="value price">{{ formatPrice(reservation.totalPrice) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="info-section">
+          <h3>Información del vehículo</h3>
+          
+          <div class="vehicle-card">
+            <div class="vehicle-image">
+              <div class="placeholder-image">
+                <span class="vehicle-icon">🚗</span>
+              </div>
+            </div>
+            
+            <div class="vehicle-details">
+              <h4>{{ reservation.vehicle?.model || 'Información del vehículo' }}</h4>
+              <p class="vehicle-type">{{ reservation.vehicle?.type || 'Tipo de vehículo' }}</p>
+              <p class="vehicle-year">Año {{ reservation.vehicle?.year || 'N/A' }}</p>
+              <p class="vehicle-price">{{ formatPrice(reservation.vehicle?.pricePerDay || 0) }} por día</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="info-section">
+          <h3>Información del cliente</h3>
+          
+          <div class="customer-info">
+            <div class="customer-item">
+              <span class="label">Nombre:</span>
+              <span class="value">{{ reservation.customer?.name }}</span>
+            </div>
+            
+            <div class="customer-item">
+              <span class="label">Documento:</span>
+              <span class="value">{{ reservation.customer?.documentNumber }}</span>
+            </div>
+            
+            <div class="customer-item">
+              <span class="label">Email:</span>
+              <span class="value">{{ reservation.customer?.email }}</span>
+            </div>
+            
+            <div class="customer-item">
+              <span class="label">Teléfono:</span>
+              <span class="value">{{ reservation.customer?.phone }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="action-buttons">
+      <div class="primary-actions">
+        <button 
+          class="btn btn-danger"
+          *ngIf="isCancellable(reservation.status)"
+          (click)="cancelReservation(reservation.id)">
+          Cancelar reserva
+        </button>
+        
+        <button class="btn btn-outline" (click)="printConfirmation()">
+          🖨️ Imprimir
+        </button>
+        
+        <button class="btn btn-outline" (click)="downloadPDF()">
+          📄 Descargar PDF
+        </button>
+      </div>
+      
+      <div class="secondary-actions">
+        <button class="btn btn-primary" (click)="goToVehicles()">
+          Ver más vehículos
+        </button>
+      </div>
+    </div>
+
+    <div class="important-notes">
+      <h3>Información importante</h3>
+      
+      <div class="notes-list">
+        <div class="note-item">
+          <span class="note-icon">📋</span>
+          <div class="note-content">
+            <strong>Documentos requeridos:</strong> Presenta tu documento de identidad y licencia de conducir vigente al momento del recogido.
+          </div>
+        </div>
+        
+        <div class="note-item">
+          <span class="note-icon">🕐</span>
+          <div class="note-content">
+            <strong>Horarios de recogida:</strong> Lunes a viernes de 8:00 AM a 6:00 PM, sábados de 9:00 AM a 5:00 PM.
+          </div>
+        </div>
+        
+        <div class="note-item">
+          <span class="note-icon">💳</span>
+          <div class="note-content">
+            <strong>Métodos de pago:</strong> Aceptamos efectivo, tarjetas de crédito y débito. Se requiere depósito de garantía.
+          </div>
+        </div>
+        
+        <div class="note-item">
+          <span class="note-icon">📞</span>
+          <div class="note-content">
+            <strong>Contacto:</strong> Para cualquier consulta, llámanos al +57 300 123 4567 o escribe a info&#64;rentafacil.com
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #loadingOrErrorTemplate>
+  <div class="loading-error-state">
+    <div *ngIf="isLoading" class="loading-content">
+      <div class="spinner-large"></div>
+      <p>Cargando información de la reserva...</p>
+    </div>
+    
+    <div *ngIf="errorMessage" class="error-content">
+      <div class="error-icon">❌</div>
+      <h2>Error al cargar la reserva</h2>
+      <p>{{ errorMessage }}</p>
+      <button class="btn btn-primary" (click)="goToVehicles()">
+        Volver a vehículos
+      </button>
+    </div>
+  </div>
+</ng-template>

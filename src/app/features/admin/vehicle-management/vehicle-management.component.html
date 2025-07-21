@@ -1,0 +1,100 @@
+<div class="vehicle-management-page">
+  <div class="page-header">
+    <div class="header-content">
+      <button class="btn btn-back" (click)="goBack()">
+        ← Volver al Dashboard
+      </button>
+      <h1>Gestión de Vehículos</h1>
+      <button class="btn btn-primary" (click)="createNewVehicle()">
+        ➕ Nuevo Vehículo
+      </button>
+    </div>
+  </div>
+
+  <div class="page-content">
+    <div *ngIf="isLoading" class="loading-state">
+      <div class="spinner-large"></div>
+      <p>Cargando vehículos...</p>
+    </div>
+
+    <div *ngIf="errorMessage" class="error-state">
+      <div class="error-icon">❌</div>
+      <h3>Error al cargar vehículos</h3>
+      <p>{{ errorMessage }}</p>
+      <button class="btn btn-primary" (click)="loadVehicles()">
+        Reintentar
+      </button>
+    </div>
+
+    <div *ngIf="!isLoading && !errorMessage" class="vehicles-content">
+      <div *ngIf="vehicles.length === 0" class="empty-state">
+        <div class="empty-icon">🚗</div>
+        <h3>No hay vehículos registrados</h3>
+        <p>Comienza agregando tu primer vehículo a la flota</p>
+        <button class="btn btn-primary btn-large" (click)="createNewVehicle()">
+          ➕ Agregar primer vehículo
+        </button>
+      </div>
+
+      <div *ngIf="vehicles.length > 0" class="vehicles-grid">
+        <div class="vehicles-header">
+          <h2>Vehículos ({{ vehicles.length }})</h2>
+          <div class="vehicles-filters">
+            <!-- TODO: Add filters when needed -->
+          </div>
+        </div>
+
+        <div class="vehicles-list">
+          <div *ngFor="let vehicle of vehicles" class="vehicle-card">
+            <div class="vehicle-image">
+              <div class="placeholder-image">
+                <span class="vehicle-icon">🚗</span>
+              </div>
+            </div>
+
+            <div class="vehicle-info">
+              <h3>{{ vehicle.model }}</h3>
+              <p class="vehicle-details">
+                <span class="vehicle-type">{{ vehicle.type }}</span>
+                <span class="vehicle-year">{{ vehicle.year }}</span>
+              </p>
+              <p class="vehicle-price">{{ formatPrice(vehicle.pricePerDay) }} por día</p>
+              
+              <div class="vehicle-specs">
+                <span class="spec-item">
+                  <span class="spec-icon">🚗</span>
+                  {{ getVehicleTypeDisplay(vehicle.type) }}
+                </span>
+                <span class="spec-item">
+                  <span class="spec-icon">📅</span>
+                  {{ vehicle.year }}
+                </span>
+              </div>
+
+              <div class="vehicle-status">
+                <span class="status-badge" [ngClass]="getStatusClass(vehicle.available)">
+                  {{ getStatusText(vehicle.available) }}
+                </span>
+              </div>
+            </div>
+
+            <div class="vehicle-actions">
+              <button 
+                class="btn btn-outline btn-sm"
+                (click)="editVehicle(vehicle.id)"
+                title="Editar vehículo">
+                ✏️ Editar
+              </button>
+              <button 
+                class="btn btn-danger btn-sm"
+                (click)="deleteVehicle(vehicle.id)"
+                title="Eliminar vehículo">
+                🗑️ Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

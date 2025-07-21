@@ -57,23 +57,10 @@ public class CustomerBusinessServiceTests : IDisposable
             }
         };
 
-        // Add Vehicle entity for reservation tests
-        var vehicles = new List<RentaFacil.Shared.Models.Vehicle>
-        {
-            new RentaFacil.Shared.Models.Vehicle
-            {
-                Id = 1,
-                Type = RentaFacil.Shared.Enums.VehicleType.SUV,
-                Model = "Toyota RAV4",
-                Year = 2023,
-                PricePerDay = 85.00m,
-                Available = true,
-                CreatedAt = DateTime.UtcNow.AddDays(-30)
-            }
-        };
+        // Note: Vehicles are now managed by VehicleService - no longer seeded in BookingService database
+        // Vehicle references in reservations use VehicleId only
 
         _context.Customers.AddRange(customers);
-        _context.Vehicles.AddRange(vehicles);
         _context.SaveChanges();
     }
 

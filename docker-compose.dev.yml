@@ -1,0 +1,39 @@
+# Docker Compose for Development - SQL Server Only
+# Use this for local development where you run .NET services and frontend locally
+# This provides just the SQL Server database that all services need
+
+version: '3.8'
+
+services:
+  # SQL Server Database for all RentaFácil services
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: rentafacil-sql-dev
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourStrong!Passw0rd
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_dev_data:/var/opt/mssql
+      - ./database/scripts:/docker-entrypoint-initdb.d
+    networks:
+      - rentafacil-dev-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'YourStrong!Passw0rd' -Q 'SELECT 1' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+volumes:
+  sqlserver_dev_data:
+    driver: local
+    name: rentafacil_sqlserver_dev_data
+
+networks:
+  rentafacil-dev-network:
+    driver: bridge
+    name: rentafacil-dev-network

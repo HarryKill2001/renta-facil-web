@@ -1,0 +1,225 @@
+<!-- Contact Hero -->
+<section class="contact-hero">
+  <div class="container">
+    <div class="hero-content">
+      <h1>Contáctanos</h1>
+      <p class="hero-subtitle">
+        Estamos aquí para ayudarte. Contáctanos para cualquier consulta, 
+        soporte o información sobre nuestros servicios.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Contact Info -->
+<section class="contact-info">
+  <div class="container">
+    <div class="contact-grid">
+      <div *ngFor="let info of contactInfo" class="contact-card">
+        <div class="contact-icon">{{ info.icon }}</div>
+        <div class="contact-details">
+          <h3>{{ info.title }}</h3>
+          <div *ngFor="let detail of info.details" class="contact-detail" [innerHTML]="detail"></div>
+          <p class="contact-subtitle">{{ info.subtitle }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Contact Form and Map -->
+<section class="contact-form-section">
+  <div class="container">
+    <div class="form-map-grid">
+      <!-- Contact Form -->
+      <div class="contact-form">
+        <h2>Envíanos un mensaje</h2>
+        <p>Completa el formulario y te responderemos lo antes posible</p>
+        
+        <form #contactFormRef="ngForm" (ngSubmit)="onSubmit(contactFormRef)">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="name">Nombre completo *</label>
+              <input 
+                type="text" 
+                id="name" 
+                name="name"
+                [(ngModel)]="contactForm.name" 
+                required 
+                #name="ngModel">
+              <div *ngIf="name.invalid && name.touched" class="error-message">
+                El nombre es requerido
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="email">Correo electrónico *</label>
+              <input 
+                type="email" 
+                id="email" 
+                name="email"
+                [(ngModel)]="contactForm.email" 
+                required 
+                email
+                #email="ngModel">
+              <div *ngIf="email.invalid && email.touched" class="error-message">
+                Ingresa un correo válido
+              </div>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="phone">Teléfono</label>
+              <input 
+                type="tel" 
+                id="phone" 
+                name="phone"
+                [(ngModel)]="contactForm.phone" 
+                (blur)="formatPhoneNumber()"
+                placeholder="+57 300 123 4567">
+            </div>
+            
+            <div class="form-group">
+              <label for="inquiryType">Tipo de consulta *</label>
+              <select 
+                id="inquiryType" 
+                name="inquiryType"
+                [(ngModel)]="contactForm.inquiryType" 
+                required>
+                <option *ngFor="let type of inquiryTypes" [value]="type.value">
+                  {{ type.label }}
+                </option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="subject">Asunto *</label>
+            <input 
+              type="text" 
+              id="subject" 
+              name="subject"
+              [(ngModel)]="contactForm.subject" 
+              required 
+              #subject="ngModel"
+              placeholder="Describe brevemente tu consulta">
+            <div *ngIf="subject.invalid && subject.touched" class="error-message">
+              El asunto es requerido
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="message">Mensaje *</label>
+            <textarea 
+              id="message" 
+              name="message"
+              [(ngModel)]="contactForm.message" 
+              required 
+              rows="5"
+              #message="ngModel"
+              placeholder="Detalla tu consulta o mensaje..."></textarea>
+            <div *ngIf="message.invalid && message.touched" class="error-message">
+              El mensaje es requerido
+            </div>
+          </div>
+          
+          <div class="form-actions">
+            <button 
+              type="submit" 
+              class="btn btn-primary btn-large"
+              [disabled]="!contactFormRef.valid || isSubmitting">
+              <span *ngIf="isSubmitting" class="spinner"></span>
+              {{ isSubmitting ? 'Enviando...' : 'Enviar Mensaje' }}
+            </button>
+          </div>
+        </form>
+      </div>
+      
+      <!-- Map Placeholder -->
+      <div class="map-container">
+        <div class="map-placeholder">
+          <div class="map-icon">🗺️</div>
+          <h3>Ubícanos</h3>
+          <p>Visítanos en nuestra oficina principal en Bogotá o en cualquiera de nuestras sucursales.</p>
+          <button class="btn btn-outline">Ver en Google Maps</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Office Locations -->
+<section class="office-locations">
+  <div class="container">
+    <div class="section-header">
+      <h2>Nuestras Oficinas</h2>
+      <p>Visítanos en cualquiera de nuestras ubicaciones</p>
+    </div>
+    
+    <div class="locations-grid">
+      <div *ngFor="let location of officeLocations" class="location-card">
+        <h3 class="location-city">{{ location.city }}</h3>
+        <div class="location-info">
+          <div class="location-item">
+            <span class="location-icon">📍</span>
+            <span>{{ location.address }}</span>
+          </div>
+          <div class="location-item">
+            <span class="location-icon">📞</span>
+            <span>{{ location.phone }}</span>
+          </div>
+          <div class="location-item">
+            <span class="location-icon">🕐</span>
+            <span>{{ location.hours }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="faq">
+  <div class="container">
+    <div class="section-header">
+      <h2>Preguntas Frecuentes</h2>
+      <p>Encuentra respuestas a las consultas más comunes</p>
+    </div>
+    
+    <div class="faq-list">
+      <div *ngFor="let faq of faqs; let i = index" class="faq-item">
+        <div class="faq-question" (click)="toggleFaq(i)">
+          <h3>{{ faq.question }}</h3>
+          <span class="faq-toggle" [class.expanded]="expandedFaq === i">
+            {{ expandedFaq === i ? '−' : '+' }}
+          </span>
+        </div>
+        <div class="faq-answer" [class.expanded]="expandedFaq === i">
+          <p>{{ faq.answer }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Emergency Contact -->
+<section class="emergency-contact">
+  <div class="container">
+    <div class="emergency-content">
+      <div class="emergency-info">
+        <h2>¿Tienes una emergencia?</h2>
+        <p>Si tienes un problema urgente durante tu alquiler, contáctanos inmediatamente.</p>
+      </div>
+      
+      <div class="emergency-actions">
+        <a href="tel:+573001234567" class="btn btn-primary btn-large">
+          📞 Llamar Ahora
+        </a>
+        <a href="https://wa.me/573001234567" class="btn btn-outline btn-large" target="_blank">
+          💬 WhatsApp
+        </a>
+      </div>
+    </div>
+  </div>
+</section>

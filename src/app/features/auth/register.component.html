@@ -1,0 +1,203 @@
+<div class="register-page">
+  <div class="register-container">
+    <div class="register-header">
+      <div class="logo">
+        <span class="logo-icon">🚗</span>
+        <span class="logo-text">RentaFácil</span>
+      </div>
+      <h1>Crear Cuenta</h1>
+      <p class="register-subtitle">Únete a nosotros y comienza a alquilar vehículos</p>
+    </div>
+
+    <form #registerForm="ngForm" (ngSubmit)="onSubmit(registerForm)" class="register-form">
+      
+      <!-- Personal Information -->
+      <div class="form-section">
+        <h3>Información Personal</h3>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="firstName">Nombres *</label>
+            <input 
+              type="text" 
+              id="firstName" 
+              name="firstName"
+              [(ngModel)]="registrationData.firstName"
+              required 
+              placeholder="Tu nombre"
+              #firstName="ngModel">
+            <div *ngIf="firstName.invalid && firstName.touched" class="error-message">
+              Los nombres son requeridos
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="lastName">Apellidos *</label>
+            <input 
+              type="text" 
+              id="lastName" 
+              name="lastName"
+              [(ngModel)]="registrationData.lastName"
+              required 
+              placeholder="Tus apellidos"
+              #lastName="ngModel">
+            <div *ngIf="lastName.invalid && lastName.touched" class="error-message">
+              Los apellidos son requeridos
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="documentType">Tipo de Documento *</label>
+            <select 
+              id="documentType" 
+              name="documentType"
+              [(ngModel)]="registrationData.documentType"
+              required>
+              <option *ngFor="let doc of documentTypes" [value]="doc.value">
+                {{ doc.label }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="documentNumber">Número de Documento *</label>
+            <input 
+              type="text" 
+              id="documentNumber" 
+              name="documentNumber"
+              [(ngModel)]="registrationData.documentNumber"
+              required 
+              pattern="[0-9]{6,12}"
+              placeholder="123456789"
+              #documentNumber="ngModel">
+            <div *ngIf="documentNumber.invalid && documentNumber.touched" class="error-message">
+              Número de documento inválido (6-12 dígitos)
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact Information -->
+      <div class="form-section">
+        <h3>Información de Contacto</h3>
+        
+        <div class="form-group">
+          <label for="email">Correo Electrónico *</label>
+          <input 
+            type="email" 
+            id="email" 
+            name="email"
+            [(ngModel)]="registrationData.email"
+            required 
+            email
+            placeholder="tu@email.com"
+            #email="ngModel">
+          <div *ngIf="email.invalid && email.touched" class="error-message">
+            Ingresa un correo electrónico válido
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="phone">Teléfono *</label>
+          <input 
+            type="tel" 
+            id="phone" 
+            name="phone"
+            [(ngModel)]="registrationData.phone"
+            required 
+            placeholder="+57 300 123 4567"
+            #phone="ngModel">
+          <div *ngIf="phone.invalid && phone.touched" class="error-message">
+            El teléfono es requerido
+          </div>
+        </div>
+      </div>
+
+      <!-- Security -->
+      <div class="form-section">
+        <h3>Seguridad</h3>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="password">Contraseña *</label>
+            <input 
+              type="password" 
+              id="password" 
+              name="password"
+              [(ngModel)]="registrationData.password"
+              required 
+              minlength="6"
+              placeholder="••••••••"
+              #password="ngModel">
+            <div *ngIf="password.invalid && password.touched" class="error-message">
+              La contraseña debe tener al menos 6 caracteres
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="confirmPassword">Confirmar Contraseña *</label>
+            <input 
+              type="password" 
+              id="confirmPassword" 
+              name="confirmPassword"
+              [(ngModel)]="registrationData.confirmPassword"
+              required 
+              placeholder="••••••••"
+              #confirmPassword="ngModel">
+            <div *ngIf="confirmPassword.invalid && confirmPassword.touched" class="error-message">
+              Confirma tu contraseña
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Terms and Conditions -->
+      <div class="form-section">
+        <div class="checkbox-group">
+          <label class="checkbox-label">
+            <input 
+              type="checkbox" 
+              name="acceptTerms"
+              [(ngModel)]="registrationData.acceptTerms"
+              required>
+            <span class="checkbox-text">
+              Acepto los <a href="#" class="link">términos y condiciones</a> y la 
+              <a href="#" class="link">política de privacidad</a>
+            </span>
+          </label>
+        </div>
+      </div>
+
+      <div *ngIf="errorMessage" class="alert alert-error">
+        {{ errorMessage }}
+      </div>
+
+      <div class="form-actions">
+        <button 
+          type="submit" 
+          class="btn btn-primary btn-large"
+          [disabled]="!registerForm.valid || isLoading">
+          <span *ngIf="isLoading" class="spinner"></span>
+          {{ isLoading ? 'Creando cuenta...' : 'Crear Cuenta' }}
+        </button>
+      </div>
+    </form>
+
+    <div class="register-footer">
+      <p>¿Ya tienes una cuenta? 
+        <button type="button" class="btn btn-text" (click)="goToLogin()">
+          Iniciar sesión
+        </button>
+      </p>
+      
+      <button 
+        type="button" 
+        class="btn btn-text"
+        (click)="goBack()">
+        ← Volver al inicio
+      </button>
+    </div>
+  </div>
+</div>

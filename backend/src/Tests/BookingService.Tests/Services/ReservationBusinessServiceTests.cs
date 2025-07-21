@@ -2,11 +2,14 @@ using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
+using Moq.Protected;
 using RentaFacil.Shared.DTOs;
 using RentaFacil.Shared.Enums;
 using BookingService.Data;
 using BookingService.Repositories;
 using BookingService.Services;
+using System.Net;
+using System.Text.Json;
 
 namespace BookingService.Tests.Services;
 
@@ -16,6 +19,9 @@ public class ReservationBusinessServiceTests : IDisposable
     private readonly ReservationRepository _reservationRepository;
     private readonly CustomerRepository _customerRepository;
     private readonly Mock<ILogger<ReservationBusinessService>> _loggerMock;
+    private readonly Mock<IHttpClientFactory> _httpClientFactoryMock;
+    private readonly Mock<HttpMessageHandler> _httpMessageHandlerMock;
+    private readonly HttpClient _httpClient;
     private readonly ReservationBusinessService _service;
 
     public ReservationBusinessServiceTests()
@@ -28,12 +34,61 @@ public class ReservationBusinessServiceTests : IDisposable
         _reservationRepository = new ReservationRepository(_context);
         _customerRepository = new CustomerRepository(_context);
         _loggerMock = new Mock<ILogger<ReservationBusinessService>>();
+        
+        // Setup HTTP client mocking
+        _httpMessageHandlerMock = new Mock<HttpMessageHandler>();
+        _httpClient = new HttpClient(_httpMessageHandlerMock.Object);
+        _httpClient.BaseAddress = new Uri("http://localhost:5002");
+        
+        _httpClientFactoryMock = new Mock<IHttpClientFactory>();
+        _httpClientFactoryMock.Setup(x => x.CreateClient("VehicleService"))
+                             .Returns(_httpClient);
+
         _service = new ReservationBusinessService(
             _reservationRepository, 
             _customerRepository, 
-            _loggerMock.Object);
+            _loggerMock.Object,
+            _httpClientFactoryMock.Object);
 
+        SetupHttpClientMocks();
         SeedTestData();
+    }
+
+    private void SetupHttpClientMocks()
+    {
+        // Mock vehicle details response
+        var vehicleDto = new VehicleDto
+        {
+            Id = 1,
+            Type = VehicleType.SUV,
+            Model = "Toyota RAV4",
+            Year = 2023,
+            PricePerDay = 85.00m,
+            Available = true,
+            CreatedAt = DateTime.UtcNow.AddDays(-30)
+        };
+
+        var apiResponse = new ApiResponse<VehicleDto>
+        {
+            Success = true,
+            Message = "Vehicle found",
+            Data = vehicleDto
+        };
+
+        var jsonResponse = JsonSerializer.Serialize(apiResponse, new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        });
+
+        _httpMessageHandlerMock.Protected()
+            .Setup<Task<HttpResponseMessage>>("SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>())
+            .ReturnsAsync(new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.OK,
+                Content = new StringContent(jsonResponse)
+            });
     }
 
     private void SeedTestData()
@@ -51,20 +106,8 @@ public class ReservationBusinessServiceTests : IDisposable
             }
         };
 
-        // Create simplified Vehicle entities for the test context
-        var vehicles = new List<RentaFacil.Shared.Models.Vehicle>
-        {
-            new RentaFacil.Shared.Models.Vehicle
-            {
-                Id = 1,
-                Type = VehicleType.SUV,
-                Model = "Toyota RAV4",
-                Year = 2023,
-                PricePerDay = 85.00m,
-                Available = true,
-                CreatedAt = DateTime.UtcNow.AddDays(-30)
-            }
-        };
+        // Note: Vehicles are now in VehicleService database, not BookingService
+        // We mock the HTTP calls to VehicleService instead of seeding vehicles
 
         var reservations = new List<RentaFacil.Shared.Models.Reservation>
         {
@@ -83,13 +126,12 @@ public class ReservationBusinessServiceTests : IDisposable
         };
 
         _context.Customers.AddRange(customers);
-        _context.Vehicles.AddRange(vehicles);
         _context.Reservations.AddRange(reservations);
         _context.SaveChanges();
     }
 
     [Fact]
-    public async Task GetReservationByIdAsync_WithValidId_ShouldReturnReservation()
+    public async Task GetReservationByIdAsync_WithValidId_ShouldReturnReservationWithVehicleDetails()
     {
         // Act
         var result = await _service.GetReservationByIdAsync(1);
@@ -100,6 +142,18 @@ public class ReservationBusinessServiceTests : IDisposable
         result.CustomerId.Should().Be(1);
         result.VehicleId.Should().Be(1);
         result.Status.Should().Be(ReservationStatus.Confirmed);
+        
+        // Verify vehicle details are populated from VehicleService
+        result.Vehicle.Should().NotBeNull();
+        result.Vehicle!.Id.Should().Be(1);
+        result.Vehicle.Type.Should().Be(VehicleType.SUV);
+        result.Vehicle.Model.Should().Be("Toyota RAV4");
+        result.Vehicle.Year.Should().Be(2023);
+        result.Vehicle.PricePerDay.Should().Be(85.00m);
+        
+        // Verify customer details are still populated
+        result.Customer.Should().NotBeNull();
+        result.Customer!.Name.Should().Be("Juan Pérez");
     }
 
     [Fact]
@@ -263,5 +317,6 @@ public class ReservationBusinessServiceTests : IDisposable
     public void Dispose()
     {
         _context.Dispose();
+        _httpClient.Dispose();
     }
 }

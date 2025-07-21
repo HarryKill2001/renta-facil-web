@@ -1,0 +1,180 @@
+<div class="reservation-search-page">
+  <div class="search-header">
+    <div class="header-content">
+      <h1>Buscar mi reserva</h1>
+      <p class="header-subtitle">
+        Encuentra tu reserva usando el número de confirmación o tu correo electrónico
+      </p>
+    </div>
+  </div>
+
+  <div class="search-content">
+    <div class="search-form-container">
+      <form #searchForm="ngForm" (ngSubmit)="onSearch(searchForm)" class="search-form">
+        <div class="form-section">
+          <h2>Información de búsqueda</h2>
+          <p class="form-description">
+            Ingresa al menos uno de los siguientes campos para buscar tu reserva:
+          </p>
+          
+          <div class="form-group">
+            <label for="confirmationNumber">Número de confirmación</label>
+            <input 
+              type="text" 
+              id="confirmationNumber" 
+              name="confirmationNumber"
+              [(ngModel)]="searchData.confirmationNumber"
+              placeholder="Ej: RF-20250120-001"
+              class="form-input">
+            <small class="form-hint">
+              Puedes encontrar este número en el correo de confirmación de tu reserva
+            </small>
+          </div>
+          
+          <div class="form-divider">
+            <span>O</span>
+          </div>
+          
+          <div class="form-group">
+            <label for="email">Correo electrónico</label>
+            <input 
+              type="email" 
+              id="email" 
+              name="email"
+              [(ngModel)]="searchData.email"
+              placeholder="tu@email.com"
+              class="form-input">
+            <small class="form-hint">
+              El correo que usaste al hacer la reserva
+            </small>
+          </div>
+          
+          <div *ngIf="errorMessage" class="alert alert-error">
+            {{ errorMessage }}
+          </div>
+          
+          <div class="form-actions">
+            <button 
+              type="button" 
+              class="btn btn-secondary"
+              (click)="clearSearch()"
+              *ngIf="hasSearched">
+              Nueva búsqueda
+            </button>
+            <button 
+              type="submit" 
+              class="btn btn-primary btn-large"
+              [disabled]="isSearching">
+              <span *ngIf="isSearching" class="spinner"></span>
+              {{ isSearching ? 'Buscando...' : 'Buscar reserva' }}
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Search Results -->
+    <div class="search-results" *ngIf="hasSearched">
+      <h2>Resultados de búsqueda</h2>
+      
+      <div *ngIf="searchResults.length === 0 && !isSearching" class="no-results">
+        <div class="no-results-icon">🔍</div>
+        <h3>No se encontraron reservas</h3>
+        <p>
+          No pudimos encontrar ninguna reserva con los datos proporcionados.
+          Verifica que la información sea correcta.
+        </p>
+        <div class="no-results-tips">
+          <h4>Consejos de búsqueda:</h4>
+          <ul>
+            <li>Revisa que el número de confirmación esté completo</li>
+            <li>Verifica que el correo electrónico esté escrito correctamente</li>
+            <li>Si hiciste la reserva recientemente, espera unos minutos e intenta de nuevo</li>
+          </ul>
+        </div>
+      </div>
+      
+      <div *ngIf="searchResults.length > 0" class="results-list">
+        <div 
+          *ngFor="let reservation of searchResults" 
+          class="reservation-card"
+          (click)="viewReservation(reservation)">
+          
+          <div class="reservation-header">
+            <div class="confirmation-info">
+              <h3>{{ reservation.confirmationNumber }}</h3>
+              <span class="status-badge" [ngClass]="getStatusClass(reservation.status)">
+                {{ getStatusDisplayName(reservation.status) }}
+              </span>
+            </div>
+            <div class="reservation-price">
+              {{ formatPrice(reservation.totalPrice) }}
+            </div>
+          </div>
+          
+          <div class="reservation-details">
+            <div class="detail-item">
+              <span class="label">Fechas:</span>
+              <span class="value">
+                {{ reservation.startDate | date:'dd/MM/yyyy' }} - 
+                {{ reservation.endDate | date:'dd/MM/yyyy' }}
+              </span>
+            </div>
+            
+            <div class="detail-item" *ngIf="reservation.vehicle">
+              <span class="label">Vehículo:</span>
+              <span class="value">
+                {{ reservation.vehicle.model }} {{ reservation.vehicle.year }}
+              </span>
+            </div>
+            
+            <div class="detail-item" *ngIf="reservation.customer">
+              <span class="label">Cliente:</span>
+              <span class="value">
+                {{ reservation.customer.name }}
+              </span>
+            </div>
+          </div>
+          
+          <div class="reservation-actions">
+            <button class="btn btn-outline btn-small">
+              Ver detalles →
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Help Section -->
+  <div class="help-section">
+    <div class="help-content">
+      <h3>¿Necesitas ayuda?</h3>
+      <div class="help-options">
+        <div class="help-item">
+          <span class="help-icon">📞</span>
+          <div class="help-text">
+            <strong>Línea de atención</strong>
+            <p>+57 300 123 4567</p>
+          </div>
+        </div>
+        
+        <div class="help-item">
+          <span class="help-icon">✉️</span>
+          <div class="help-text">
+            <strong>Correo electrónico</strong>
+            <p>info&#64;rentafacil.com</p>
+          </div>
+        </div>
+        
+        <div class="help-item">
+          <span class="help-icon">🕐</span>
+          <div class="help-text">
+            <strong>Horarios de atención</strong>
+            <p>Lunes a viernes: 8:00 AM - 6:00 PM</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

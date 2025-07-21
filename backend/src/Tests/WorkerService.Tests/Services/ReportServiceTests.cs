@@ -11,18 +11,28 @@ namespace WorkerService.Tests.Services;
 public class ReportServiceTests : IDisposable
 {
     private readonly ReportingDbContext _context;
+    private readonly DbContextOptions<ReportingDbContext> _contextOptions;
     private readonly Mock<ILogger<ReportService>> _loggerMock;
+    private readonly Mock<IDbContextFactory<ReportingDbContext>> _contextFactoryMock;
     private readonly ReportService _service;
 
     public ReportServiceTests()
     {
-        var options = new DbContextOptionsBuilder<ReportingDbContext>()
+        _contextOptions = new DbContextOptionsBuilder<ReportingDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
             .Options;
 
-        _context = new ReportingDbContext(options);
+        _context = new ReportingDbContext(_contextOptions);
         _loggerMock = new Mock<ILogger<ReportService>>();
-        _service = new ReportService(_context, _loggerMock.Object);
+        
+        // Setup DbContext factory mock to return new instances each time
+        _contextFactoryMock = new Mock<IDbContextFactory<ReportingDbContext>>();
+        _contextFactoryMock.Setup(x => x.CreateDbContext())
+                          .Returns(() => new ReportingDbContext(_contextOptions));
+        _contextFactoryMock.Setup(x => x.CreateDbContextAsync(It.IsAny<CancellationToken>()))
+                          .ReturnsAsync(() => new ReportingDbContext(_contextOptions));
+
+        _service = new ReportService(_contextFactoryMock.Object, _loggerMock.Object);
 
         SeedTestData();
     }

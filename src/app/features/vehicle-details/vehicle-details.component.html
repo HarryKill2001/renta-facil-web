@@ -1,0 +1,177 @@
+<div class="vehicle-details" *ngIf="vehicle$ | async as vehicle; else loadingTemplate">
+  <div class="details-header">
+    <button class="btn btn-back" (click)="goBack()">
+      ← Volver
+    </button>
+    <h1>{{ vehicle.model }}</h1>
+  </div>
+
+  <div class="details-content">
+    <div class="vehicle-gallery">
+      <div class="main-image">
+        <div class="placeholder-image">
+          <span class="vehicle-icon">🚗</span>
+        </div>
+      </div>
+      
+      <div class="image-thumbnails">
+        <div class="thumbnail active">
+          <div class="placeholder-thumbnail">
+            <span class="icon">🚗</span>
+          </div>
+        </div>
+        <div class="thumbnail">
+          <div class="placeholder-thumbnail">
+            <span class="icon">📸</span>
+          </div>
+        </div>
+        <div class="thumbnail">
+          <div class="placeholder-thumbnail">
+            <span class="icon">📸</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="vehicle-info">
+      <div class="info-section">
+        <h2>Información del vehículo</h2>
+        
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="label">Tipo:</span>
+            <span class="value">{{ getVehicleTypeDisplay(vehicle.type) }}</span>
+          </div>
+          
+          <div class="info-item">
+            <span class="label">Año:</span>
+            <span class="value">{{ vehicle.year }}</span>
+          </div>
+          
+          <div class="info-item">
+            <span class="label">Precio por día:</span>
+            <span class="value price">{{ formatPrice(vehicle.pricePerDay) }}</span>
+          </div>
+          
+          <div class="info-item">
+            <span class="label">Estado:</span>
+            <span class="value status" [class.available]="vehicle.available" [class.unavailable]="!vehicle.available">
+              {{ vehicle.available ? 'Disponible' : 'No disponible' }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="booking-section">
+        <h3>Selecciona tus fechas</h3>
+        
+        <div class="date-picker">
+          <div class="date-group">
+            <label for="startDate">Fecha de inicio</label>
+            <input 
+              type="date" 
+              id="startDate" 
+              [value]="selectedStartDate.toISOString().split('T')[0]"
+              (change)="updateStartDate($event)"
+              [min]="minStartDate">
+          </div>
+          
+          <div class="date-group">
+            <label for="endDate">Fecha de fin</label>
+            <input 
+              type="date" 
+              id="endDate" 
+              [value]="selectedEndDate.toISOString().split('T')[0]"
+              (change)="updateEndDate($event)"
+              [min]="minEndDate">
+          </div>
+        </div>
+
+        <div class="pricing-summary">
+          <div class="price-breakdown">
+            <div class="price-item">
+              <span>{{ formatPrice(vehicle.pricePerDay) }} × {{ totalDays }} día{{ totalDays !== 1 ? 's' : '' }}</span>
+              <span>{{ formatPrice(vehicle.pricePerDay * totalDays) }}</span>
+            </div>
+            
+            <div class="price-item total">
+              <span>Total:</span>
+              <span class="total-amount">{{ formatPrice(calculateTotalPrice(vehicle)) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="availability-check">
+          <button 
+            class="btn btn-outline"
+            (click)="checkAvailability(vehicle.id)"
+            [disabled]="isCheckingAvailability || !isDateRangeValid">
+            <span *ngIf="isCheckingAvailability" class="spinner"></span>
+            {{ isCheckingAvailability ? 'Verificando...' : 'Verificar disponibilidad' }}
+          </button>
+          
+          <div *ngIf="availabilityResult !== null" class="availability-result">
+            <div *ngIf="availabilityResult" class="available-message">
+              ✅ Vehículo disponible para las fechas seleccionadas
+            </div>
+            <div *ngIf="!availabilityResult" class="unavailable-message">
+              ❌ Vehículo no disponible para las fechas seleccionadas
+            </div>
+          </div>
+        </div>
+
+        <div class="booking-actions">
+          <button 
+            class="btn btn-primary btn-large"
+            (click)="bookVehicle(vehicle)"
+            [disabled]="!vehicle.available || !isDateRangeValid || availabilityResult === false">
+            Reservar ahora
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="features-section">
+    <h3>Características del vehículo</h3>
+    
+    <div class="features-grid">
+      <div class="feature">
+        <span class="feature-icon">👥</span>
+        <span class="feature-text">5 pasajeros</span>
+      </div>
+      
+      <div class="feature">
+        <span class="feature-icon">🧳</span>
+        <span class="feature-text">Equipaje grande</span>
+      </div>
+      
+      <div class="feature">
+        <span class="feature-icon">❄️</span>
+        <span class="feature-text">Aire acondicionado</span>
+      </div>
+      
+      <div class="feature">
+        <span class="feature-icon">⚙️</span>
+        <span class="feature-text">Transmisión automática</span>
+      </div>
+      
+      <div class="feature">
+        <span class="feature-icon">⛽</span>
+        <span class="feature-text">Combustible eficiente</span>
+      </div>
+      
+      <div class="feature">
+        <span class="feature-icon">🛡️</span>
+        <span class="feature-text">Seguro incluido</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #loadingTemplate>
+  <div class="loading-state">
+    <div class="spinner-large"></div>
+    <p>Cargando detalles del vehículo...</p>
+  </div>
+</ng-template>

@@ -1,7 +1,7 @@
 export enum VehicleType {
-  SUV = 'SUV',
-  Sedan = 'Sedan',
-  Compact = 'Compact'
+  SUV = 0,
+  Sedan = 1,
+  Compact = 2
 }
 
 export interface Vehicle {

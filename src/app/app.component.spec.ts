@@ -1,10 +1,20 @@
 import { TestBed } from '@angular/core/testing';
+import { RouterTestingModule } from '@angular/router/testing';
 import { AppComponent } from './app.component';
+import { AuthService } from './core/services/auth.service';
 
 describe('AppComponent', () => {
   beforeEach(async () => {
+    const authServiceSpy = jasmine.createSpyObj('AuthService', ['isAuthenticated', 'isAdmin', 'logout'], {
+      currentUser$: jasmine.createSpyObj('BehaviorSubject', ['pipe'])
+    });
+    authServiceSpy.currentUser$.pipe.and.returnValue(jasmine.createSpyObj('Observable', ['subscribe']));
+
     await TestBed.configureTestingModule({
-      imports: [AppComponent],
+      imports: [AppComponent, RouterTestingModule],
+      providers: [
+        { provide: AuthService, useValue: authServiceSpy }
+      ]
     }).compileComponents();
   });
 

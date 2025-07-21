@@ -1,0 +1,75 @@
+<div class="error-page">
+  <div class="error-container">
+    <div class="error-graphic">
+      <div class="error-icon">{{ errorInfo.icon }}</div>
+      <div class="error-code">{{ errorInfo.code }}</div>
+    </div>
+
+    <div class="error-content">
+      <h1>{{ errorInfo.title }}</h1>
+      <p class="error-message">{{ errorInfo.message }}</p>
+
+      <div class="error-details">
+        <h3>¿Qué puedes hacer?</h3>
+        <ul class="suggestions-list">
+          <li *ngFor="let suggestion of errorInfo.suggestions">
+            <span class="bullet">•</span>
+            <span>{{ suggestion }}</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="action-buttons">
+        <button class="btn btn-primary" (click)="retryAction()">
+          🔄 Reintentar
+        </button>
+        
+        <button class="btn btn-outline" (click)="goHome()">
+          🏠 Ir al Inicio
+        </button>
+        
+        <button class="btn btn-outline" (click)="contactSupport()">
+          📞 Contactar Soporte
+        </button>
+        
+        <button class="btn btn-text" (click)="goBack()">
+          ← Volver Atrás
+        </button>
+      </div>
+
+      <div class="help-info">
+        <div class="help-card">
+          <div class="help-icon">📞</div>
+          <div class="help-content">
+            <h4>¿Necesitas ayuda inmediata?</h4>
+            <p>Llámanos al <strong>+57 300 123 4567</strong></p>
+            <p>Estamos disponibles 24/7 para asistirte</p>
+          </div>
+        </div>
+
+        <div class="help-card">
+          <div class="help-icon">✉️</div>
+          <div class="help-content">
+            <h4>Escríbenos</h4>
+            <p>Email: <strong>soporte&#64;rentafacil.com</strong></p>
+            <p>Responderemos en menos de 2 horas</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="error-id">
+        <small>ID de Error: {{ generateErrorId() }}</small>
+        <small>Hora: {{ getCurrentTime() }}</small>
+      </div>
+    </div>
+  </div>
+
+  <div class="background-animation">
+    <div class="floating-shapes">
+      <div class="shape shape-1"></div>
+      <div class="shape shape-2"></div>
+      <div class="shape shape-3"></div>
+      <div class="shape shape-4"></div>
+    </div>
+  </div>
+</div>

@@ -1,41 +1,43 @@
 # Frontend Structure - RentaFácil Angular Application
 
 ## Overview
-The RentaFácil frontend is built with Angular 18+ following modern Angular best practices. The application provides a responsive, user-friendly interface for vehicle search, reservation management, and customer history viewing.
+The RentaFácil frontend is built with Angular 17+ using standalone components and modern Angular best practices. The application provides a responsive, user-friendly interface for vehicle search, reservation management, and customer history viewing with proper API integration to the .NET microservices backend.
 
 ## Project Structure
 ```
-frontend/
-├── src/
-│   ├── app/
-│   │   ├── core/                    # Core functionality (singleton services)
-│   │   │   ├── guards/              # Route guards
-│   │   │   ├── interceptors/        # HTTP interceptors
-│   │   │   ├── services/            # Core services (API, auth, etc.)
-│   │   │   └── models/              # TypeScript interfaces/types
-│   │   ├── shared/                  # Shared components and utilities
-│   │   │   ├── components/          # Reusable UI components
-│   │   │   ├── pipes/               # Custom pipes
-│   │   │   ├── directives/          # Custom directives
-│   │   │   └── validators/          # Custom form validators
-│   │   ├── features/                # Feature modules
-│   │   │   ├── vehicle-search/      # Vehicle search functionality
-│   │   │   ├── reservation/         # Reservation management
-│   │   │   ├── customer-history/    # Customer history viewing
-│   │   │   └── dashboard/           # Main dashboard
-│   │   ├── layout/                  # Layout components
-│   │   │   ├── header/              # Navigation header
-│   │   │   ├── footer/              # Footer component
-│   │   │   └── sidebar/             # Sidebar navigation
-│   │   ├── app.component.ts         # Root component
-│   │   ├── app.config.ts            # Application configuration
-│   │   └── app.routes.ts            # Application routing
-│   ├── assets/                      # Static assets
-│   ├── environments/                # Environment configurations
-│   └── styles/                      # Global styles
+renta-facil-web/
+├── src/app/                         # Angular 17+ application
+│   ├── core/                        # Core functionality (singleton services)
+│   │   ├── guards/                  # Route guards (future auth)
+│   │   ├── interceptors/            # HTTP interceptors (global error handling)
+│   │   ├── services/                # Core services
+│   │   │   ├── api.service.ts       # Centralized API communication
+│   │   │   ├── reservation.service.ts # Reservation operations
+│   │   │   └── vehicle.service.ts   # Vehicle operations
+│   │   └── models/                  # TypeScript interfaces/types (currently unused)
+│   ├── shared/                      # Shared components and utilities
+│   │   ├── components/              # Reusable UI components (planned)
+│   │   ├── models/                  # Domain models and DTOs
+│   │   │   ├── customer.model.ts    # Customer interfaces
+│   │   │   ├── vehicle.model.ts     # Vehicle interfaces
+│   │   │   └── reservation.model.ts # Reservation interfaces (planned)
+│   │   ├── services/                # Shared utility services (planned)
+│   │   └── validators/              # Custom form validators (planned)
+│   ├── features/                    # Feature modules (planned - not yet implemented)
+│   │   ├── vehicle-search/          # Vehicle search functionality (future)
+│   │   ├── reservation/             # Reservation management (future)
+│   │   └── customer-history/        # Customer history viewing (future)
+│   ├── app.component.html           # Root template with reservation form
+│   ├── app.component.ts             # Root component with reservation logic
+│   ├── app.component.scss           # Root component styles
+│   ├── app.config.ts                # Standalone component configuration
+│   └── app.routes.ts                # Application routing (basic)
+├── assets/                          # Static assets
+├── environments/                    # Environment configurations (not configured)
+├── styles.scss                      # Global styles
 ├── angular.json                     # Angular CLI configuration
 ├── package.json                     # Dependencies
-└── proxy.conf.json                  # Development proxy configuration
+└── tsconfig.json                    # TypeScript configuration
 ```
 
 ## Core Architecture
@@ -82,39 +84,63 @@ export const routes: Routes = [
 ];
 ```
 
-## Core Services
+## Current Implementation
 
-### 1. Vehicle Service
+### Centralized API Service
+The current implementation uses a centralized `ApiService` that handles all HTTP communications:
+
 ```typescript
-// core/services/vehicle.service.ts
+// core/services/api.service.ts
 @Injectable({ providedIn: 'root' })
-export class VehicleService {
-  private readonly apiUrl = `${this.baseUrl}/api/vehicles`;
+export class ApiService {
+  private readonly vehicleServiceUrl = 'http://localhost:5002/api';
+  private readonly bookingServiceUrl = 'http://localhost:5257/api';
 
-  constructor(
-    private http: HttpClient,
-    @Inject('API_BASE_URL') private baseUrl: string
-  ) {}
+  constructor(private http: HttpClient) {}
 
-  getAvailableVehicles(searchParams: VehicleSearchParams): Observable<Vehicle[]> {
+  // Vehicle Service Endpoints
+  getVehicles(): Observable<any[]> {
+    return this.http.get<ApiResponse>(`${this.vehicleServiceUrl}/vehicles`)
+      .pipe(
+        map(response => response.data || []),
+        catchError(this.handleError)
+      );
+  }
+
+  getVehicle(id: number): Observable<any> {
+    return this.http.get<ApiResponse>(`${this.vehicleServiceUrl}/vehicles/${id}`)
+      .pipe(
+        map(response => response.data),
+        catchError(this.handleError)
+      );
+  }
+
+  checkVehicleAvailability(vehicleId: number, startDate: Date, endDate: Date): Observable<boolean> {
     const params = new HttpParams()
-      .set('startDate', searchParams.startDate.toISOString().split('T')[0])
-      .set('endDate', searchParams.endDate.toISOString().split('T')[0])
-      .set('type', searchParams.type || '');
+      .set('vehicleId', vehicleId.toString())
+      .set('startDate', startDate.toISOString())
+      .set('endDate', endDate.toISOString());
 
-    return this.http.get<ApiResponse<Vehicle[]>>(`${this.apiUrl}/availability`, { params })
-      .pipe(map(response => response.data));
+    return this.http.get<ApiResponse>(`${this.vehicleServiceUrl}/vehicles/availability`, { params })
+      .pipe(
+        map(response => response.success),
+        catchError(this.handleError)
+      );
   }
 
-  getAllVehicles(): Observable<Vehicle[]> {
-    return this.http.get<ApiResponse<Vehicle[]>>(this.apiUrl)
-      .pipe(map(response => response.data));
+  // Booking Service Endpoints
+  createReservation(reservation: any): Observable<any> {
+    return this.http.post<ApiResponse>(`${this.bookingServiceUrl}/reservations`, reservation)
+      .pipe(
+        map(response => response.data),
+        catchError(this.handleError)
+      );
   }
 
-  getVehicleById(id: number): Observable<Vehicle> {
-    return this.http.get<ApiResponse<Vehicle>>(`${this.apiUrl}/${id}`)
-      .pipe(map(response => response.data));
-  }
+  private handleError = (error: any): Observable<never> => {
+    console.error('API Error:', error);
+    return throwError(() => error);
+  };
 }
 ```
 
@@ -709,8 +735,8 @@ export class ErrorDisplayComponent {
 // environments/environment.ts
 export const environment = {
   production: false,
-  apiBaseUrl: 'http://localhost:5002',
-  vehicleServiceUrl: 'http://localhost:5001',
+  apiBaseUrl: 'http://localhost:5257',
+  vehicleServiceUrl: 'http://localhost:5002',
   enableLogging: true
 };
 ```
@@ -728,16 +754,16 @@ export const environment = {
 
 ## Development Proxy Configuration
 ```json
-// proxy.conf.json
+// proxy.conf.json - Updated for correct service ports
 {
   "/api/vehicles/*": {
-    "target": "http://localhost:5001",
+    "target": "http://localhost:5002",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "debug"
   },
   "/api/*": {
-    "target": "http://localhost:5002",
+    "target": "http://localhost:5257",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "debug"

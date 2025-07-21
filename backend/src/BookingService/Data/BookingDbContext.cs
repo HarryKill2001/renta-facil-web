@@ -12,7 +12,7 @@ public class BookingDbContext : DbContext
 
     public DbSet<Customer> Customers { get; set; }
     public DbSet<Reservation> Reservations { get; set; }
-    public DbSet<Vehicle> Vehicles { get; set; } // Read-only for reservation validation
+    // Vehicle management is handled by VehicleService - VehicleId is just a reference
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -90,10 +90,9 @@ public class BookingDbContext : DbContext
                 .HasForeignKey(r => r.CustomerId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            entity.HasOne(r => r.Vehicle)
-                .WithMany(v => v.Reservations)
-                .HasForeignKey(r => r.VehicleId)
-                .OnDelete(DeleteBehavior.Restrict);
+            // Vehicle relationship removed - VehicleId is just a reference to VehicleService
+            // Ignore the Vehicle navigation property since vehicles are managed by VehicleService
+            entity.Ignore(r => r.Vehicle);
 
             // Indexes for performance
             entity.HasIndex(e => e.ConfirmationNumber).IsUnique();
@@ -102,42 +101,7 @@ public class BookingDbContext : DbContext
             entity.HasIndex(e => e.CustomerId);
         });
 
-        // Vehicle entity configuration (read-only for validation)
-        modelBuilder.Entity<Vehicle>(entity =>
-        {
-            entity.HasKey(e => e.Id);
-            
-            entity.Property(e => e.Model)
-                .IsRequired()
-                .HasMaxLength(100);
-                
-            entity.Property(e => e.Type)
-                .IsRequired()
-                .HasConversion<string>();
-                
-            entity.Property(e => e.PricePerDay)
-                .HasColumnType("decimal(18,2)")
-                .IsRequired();
-                
-            entity.Property(e => e.Year)
-                .IsRequired();
-                
-            entity.Property(e => e.Available)
-                .IsRequired()
-                .HasDefaultValue(true);
-                
-            entity.Property(e => e.CreatedAt)
-                .IsRequired()
-                .HasDefaultValueSql("GETUTCDATE()");
-                
-            entity.Property(e => e.UpdatedAt)
-                .IsRequired()
-                .HasDefaultValueSql("GETUTCDATE()");
-
-            // Indexes
-            entity.HasIndex(e => e.Type);
-            entity.HasIndex(e => e.Available);
-        });
+        // Vehicle entity configuration removed - vehicles are managed by VehicleService
 
         // Add check constraints
         modelBuilder.Entity<Reservation>()

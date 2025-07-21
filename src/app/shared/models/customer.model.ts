@@ -4,7 +4,7 @@ export interface Customer {
   email: string;
   phone: string;
   documentNumber: string;
-  createdAt: Date;
+  createdAt: string;
 }
 
 export interface CreateCustomer {

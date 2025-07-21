@@ -1,0 +1,96 @@
+<div class="not-found-page">
+  <div class="not-found-container">
+    <div class="error-graphic">
+      <div class="error-code">404</div>
+      <div class="error-icon">🚗💨</div>
+    </div>
+
+    <div class="error-content">
+      <h1>¡Oops! Página no encontrada</h1>
+      <p class="error-message">
+        La página que buscas se ha tomado un desvío y no podemos encontrarla.
+        Pero no te preocupes, ¡podemos ayudarte a llegar a donde necesitas!
+      </p>
+
+      <div class="suggestions">
+        <h3>¿Qué puedes hacer?</h3>
+        <ul class="suggestions-list">
+          <li>
+            <span class="suggestion-icon">🏠</span>
+            <span>Volver al inicio y explorar nuestros vehículos</span>
+          </li>
+          <li>
+            <span class="suggestion-icon">🔍</span>
+            <span>Buscar el vehículo perfecto para tu viaje</span>
+          </li>
+          <li>
+            <span class="suggestion-icon">📋</span>
+            <span>Revisar tus reservas existentes</span>
+          </li>
+          <li>
+            <span class="suggestion-icon">📞</span>
+            <span>Contactarnos si necesitas ayuda</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="action-buttons">
+        <button class="btn btn-primary btn-large" (click)="goHome()">
+          🏠 Ir al Inicio
+        </button>
+        
+        <button class="btn btn-outline" (click)="searchVehicles()">
+          🚗 Ver Vehículos
+        </button>
+        
+        <button class="btn btn-outline" (click)="goBack()">
+          ← Volver Atrás
+        </button>
+      </div>
+
+      <div class="quick-links">
+        <h4>Enlaces rápidos</h4>
+        <div class="links-grid">
+          <a routerLink="/" class="quick-link">
+            <span class="link-icon">🏠</span>
+            <span class="link-text">Inicio</span>
+          </a>
+          
+          <a routerLink="/vehicles" class="quick-link">
+            <span class="link-icon">🚗</span>
+            <span class="link-text">Vehículos</span>
+          </a>
+          
+          <a routerLink="/reservation-search" class="quick-link">
+            <span class="link-icon">🔍</span>
+            <span class="link-text">Mis Reservas</span>
+          </a>
+          
+          <a routerLink="/about" class="quick-link">
+            <span class="link-icon">ℹ️</span>
+            <span class="link-text">Nosotros</span>
+          </a>
+          
+          <a routerLink="/contact" class="quick-link">
+            <span class="link-icon">📞</span>
+            <span class="link-text">Contacto</span>
+          </a>
+          
+          <a routerLink="/login" class="quick-link">
+            <span class="link-icon">👤</span>
+            <span class="link-text">Iniciar Sesión</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="background-decoration">
+    <div class="road-lines"></div>
+    <div class="floating-cars">
+      <span class="car car-1">🚗</span>
+      <span class="car car-2">🚙</span>
+      <span class="car car-3">🚐</span>
+    </div>
+  </div>
+</div>
