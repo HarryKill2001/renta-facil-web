@@ -339,6 +339,38 @@ npm test                         # Run unit tests
 - ✅ **Include Navigation Errors**: Removed `Include(r => r.Vehicle)` from repositories
 
 ### Current Troubleshooting:
+
+#### **🔥 CS2012 Build Error Fix**
+If you get `CS2012: Cannot open RentaFacil.Shared.dll for writing` error:
+
+**Quick Fix:**
+```bash
+# Pre-build shared library first
+cd backend
+dotnet build src/Shared/RentaFacil.Shared/RentaFacil.Shared.csproj
+dotnet build
+
+# Then run services
+scripts\start-backend.bat  # Windows
+./scripts/start-backend.sh # Linux/macOS
+```
+
+**Alternative Sequential Start:**
+```bash
+# Start services one by one with delays
+cd backend/src/VehicleService
+dotnet run --urls="http://localhost:5002"
+
+# In new terminal:
+cd backend/src/BookingService  
+dotnet run --urls="http://localhost:5257"
+
+# In new terminal:
+cd backend/src/WorkerService
+dotnet run
+```
+
+#### **Other Common Issues:**
 - **Database Connection**: Ensure SQL Server is running and connection string is correct
 - **Port Conflicts**: Check if ports 4200, 5002, 5257, 1433 are available
 - **CORS Issues**: Verify frontend and backend configurations match
