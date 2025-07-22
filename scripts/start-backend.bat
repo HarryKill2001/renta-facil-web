@@ -35,7 +35,31 @@ if %errorlevel% neq 0 (
 )
 
 REM Navigate to backend directory
-cd /d "%~dp0..\backend\src"
+cd /d "%~dp0..\backend"
+
+REM Build shared library first to avoid file locking issues
+echo Building shared dependencies...
+echo - Building RentaFacil.Shared...
+dotnet build src\Shared\RentaFacil.Shared\RentaFacil.Shared.csproj
+if %errorlevel% neq 0 (
+    echo ERROR: Failed to build RentaFacil.Shared!
+    pause
+    exit /b 1
+)
+
+echo - Building complete backend solution...
+dotnet build
+if %errorlevel% neq 0 (
+    echo ERROR: Failed to build backend solution!
+    pause
+    exit /b 1
+)
+
+echo.
+echo Build successful! Starting services...
+echo.
+
+cd src
 
 REM Start VehicleService (Port 5002)
 echo Starting VehicleService on port 5002...

@@ -32,7 +32,29 @@ if ! docker ps | grep -q "rentafacil-sql"; then
 fi
 
 # Navigate to backend directory
-cd "$(dirname "$0")/../backend/src"
+cd "$(dirname "$0")/../backend"
+
+# Build shared library first to avoid file locking issues
+echo "Building shared dependencies..."
+echo "- Building RentaFacil.Shared..."
+dotnet build src/Shared/RentaFacil.Shared/RentaFacil.Shared.csproj
+if [ $? -ne 0 ]; then
+    echo "ERROR: Failed to build RentaFacil.Shared!"
+    exit 1
+fi
+
+echo "- Building complete backend solution..."
+dotnet build
+if [ $? -ne 0 ]; then
+    echo "ERROR: Failed to build backend solution!"
+    exit 1
+fi
+
+echo
+echo "Build successful! Starting services..."
+echo
+
+cd src
 
 # Start VehicleService (Port 5002)
 echo "Starting VehicleService on port 5002..."

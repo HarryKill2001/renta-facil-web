@@ -61,7 +61,27 @@ echo Starting .NET Backend Services...
 echo.
 
 REM Navigate to backend directory
-cd backend\src
+cd backend
+
+REM Build shared library first to avoid file locking issues
+echo Building shared dependencies...
+dotnet build src\Shared\RentaFacil.Shared\RentaFacil.Shared.csproj
+if %errorlevel% neq 0 (
+    echo ERROR: Failed to build RentaFacil.Shared!
+    pause
+    exit /b 1
+)
+
+echo Building complete backend solution...
+dotnet build
+if %errorlevel% neq 0 (
+    echo ERROR: Failed to build backend solution!
+    pause
+    exit /b 1
+)
+
+echo Build successful! Starting services...
+cd src
 
 REM Start VehicleService
 echo Starting VehicleService...

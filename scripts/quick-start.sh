@@ -55,7 +55,25 @@ echo "Starting .NET Backend Services..."
 echo
 
 # Navigate to backend directory
-cd backend/src
+cd backend
+
+# Build shared library first to avoid file locking issues
+echo "Building shared dependencies..."
+dotnet build src/Shared/RentaFacil.Shared/RentaFacil.Shared.csproj
+if [ $? -ne 0 ]; then
+    echo "ERROR: Failed to build RentaFacil.Shared!"
+    exit 1
+fi
+
+echo "Building complete backend solution..."
+dotnet build
+if [ $? -ne 0 ]; then
+    echo "ERROR: Failed to build backend solution!"
+    exit 1
+fi
+
+echo "Build successful! Starting services..."
+cd src
 
 # Start VehicleService
 echo "Starting VehicleService..."
